@@ -1,0 +1,19 @@
+[database_connection]
+user=your_username
+password=your_password
+hostname=localhost:5432
+database_name=sparkscope
+
+
+
+[history_fetcher]
+
+# url of the Spark History Server API's main endpoint (list of the applications)
+base_url=https://history.server.address.com:18488/api/v1/applications
+
+# True if the History Server certificates should be verified
+verify_certificates=False
+
+# Number of parallel threads used for sending requests to History Server
+threadpool_size=5
+
