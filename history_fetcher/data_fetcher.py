@@ -18,6 +18,7 @@ from db.entities.executor import Executor
 from db.entities.job import Job
 from db.entities.stage import Stage
 from db.entities.stage_statistics import StageStatistics
+from db.entities.task import Task
 from history_fetcher.utils import Utils
 
 # TODO suppress InsecureRequestWarning while not verifying the certificates
@@ -56,6 +57,7 @@ class DataFetcher:
         self.fetch_jobs(app_ids)
         app_stage_mapping = self.fetch_stages(app_ids)
         self.fetch_stage_statistics(app_stage_mapping)
+        self.fetch_tasks(app_stage_mapping)
 
 
     def fetch_applications(self):
@@ -303,8 +305,66 @@ class DataFetcher:
             }
             self.db_session.add(StageStatistics(stage_statistics_attributes))
 
-    def fetch_tasks(self, app_stage_id):
-        pass
+    def fetch_tasks(self, app_stage_mapping):
+        logger.info(f"Fetching tasks data")
+
+        urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskList"
+                for app_id, stage_list in app_stage_mapping.items() for stage_id in stage_list]
+
+        tasks_data = self.get_jsons_parallel(urls, key="stage_key")
+
+        # wait until all the data are received
+        for i in as_completed(tasks_data.values()):
+            pass
+
+        for stage_key, tasks_future in tasks_data.items():
+            tasks = tasks_future.result()
+            if not tasks:
+                continue
+
+            app_id = self.utils.get_app_id_from_stage_key(stage_key)
+
+            for task in tasks:
+                tasks_attributes = {
+                    'task_key': f"{stage_key}_{task['taskId']}",
+                    'stage_key': stage_key,
+                    'task_id': task['taskId'],
+                    'index': task['index'],
+                    'attempt': task['attempt'],
+                    'launch_time': task['launchTime'],
+                    'duration': task['duration'],
+                    'executor_key': f"{app_id}_{task['executorId']}",
+                    'host': task['host'],
+                    'status': task['status'],
+                    'task_locality': task['taskLocality'],
+                    'speculative': task['speculative'],
+                    'accumulator_updates': task['accumulatorUpdates'],
+                    'executor_deserialize_time': task['taskMetrics']['executorDeserializeTime'],
+                    'executor_deserialize_cpu_time': task['taskMetrics']['executorDeserializeCpuTime'],
+                    'executor_run_time': task['taskMetrics']['executorRunTime'],
+                    'executor_cpu_time': task['taskMetrics']['executorCpuTime'],
+                    'result_size': task['taskMetrics']['resultSize'],
+                    'jvm_gc_time': task['taskMetrics']['jvmGcTime'],
+                    'result_serialization_time': task['taskMetrics']['resultSerializationTime'],
+                    'memory_bytes_spilled': task['taskMetrics']['memoryBytesSpilled'],
+                    'disk_bytes_spilled': task['taskMetrics']['diskBytesSpilled'],
+                    'peak_execution_memory': task['taskMetrics']['peakExecutionMemory'],
+                    'bytes_read': task['taskMetrics']['inputMetrics']['bytesRead'],
+                    'records_read': task['taskMetrics']['inputMetrics']['recordsRead'],
+                    'bytes_written': task['taskMetrics']['outputMetrics']['bytesWritten'],
+                    'records_written': task['taskMetrics']['outputMetrics']['recordsWritten'],
+                    'shuffle_remote_blocks_fetched': task['taskMetrics']['shuffleReadMetrics']['remoteBlocksFetched'],
+                    'shuffle_local_blocks_fetched': task['taskMetrics']['shuffleReadMetrics']['localBlocksFetched'],
+                    'shuffle_fetch_wait_time': task['taskMetrics']['shuffleReadMetrics']['fetchWaitTime'],
+                    'shuffle_remote_bytes_read': task['taskMetrics']['shuffleReadMetrics']['remoteBytesRead'],
+                    'shuffle_remote_bytes_read_to_disk': task['taskMetrics']['shuffleReadMetrics']['remoteBytesReadToDisk'],
+                    'shuffle_local_bytes_read': task['taskMetrics']['shuffleReadMetrics']['localBytesRead'],
+                    'shuffle_records_read': task['taskMetrics']['shuffleReadMetrics']['recordsRead'],
+                    'shuffle_bytes_written': task['taskMetrics']['shuffleWriteMetrics']['bytesWritten'],
+                    'shuffle_write_time': task['taskMetrics']['shuffleWriteMetrics']['writeTime'],
+                    'shuffle_records_written': task['taskMetrics']['shuffleWriteMetrics']['recordsWritten']
+                }
+                self.db_session.add(Task(tasks_attributes))
 
     def get_http_session(self):
         """

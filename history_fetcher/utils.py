@@ -34,6 +34,11 @@ class Utils:
         stage_key = None if parse is None else f"{parse.group(1)}_{parse.group(2)}"
         return stage_key
 
+    def get_app_id_from_stage_key(self, stage_key):
+        parse = re.search(rf'([a-zA-Z0-9\-_]+)_([0-9]+)', stage_key)
+        app_id = None if parse is None else parse.group(1)
+        return app_id
+
     def get_prop(self, obj, prop):
         """
         Get property value if property exists

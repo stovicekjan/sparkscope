@@ -41,6 +41,18 @@ def test_get_stage_key_from_url():
     assert u.get_stage_key_from_url(urls[5]) is None
 
 
+def test_get_app_id_from_stage_key():
+    stage_keys = [
+        "applicationId_123_456_555",
+        "local-123_444",
+        "aaa_444"
+    ]
+
+    assert u.get_app_id_from_stage_key(stage_keys[0]) == "applicationId_123_456"
+    assert u.get_app_id_from_stage_key(stage_keys[1]) == "local-123"
+    assert u.get_app_id_from_stage_key(stage_keys[2]) == "aaa"
+
+
 def test_get_prop():
     obj1 = {
         'prop1': 'val1',
@@ -60,4 +72,5 @@ def test_get_prop():
 # TODO run somehow else
 test_get_app_id_from_url()
 test_get_stage_key_from_url()
+test_get_app_id_from_stage_key()
 test_get_prop()
