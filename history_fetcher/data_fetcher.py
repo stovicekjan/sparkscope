@@ -1,7 +1,4 @@
-import ssl
-import json
-import re
-from concurrent.futures import wait, as_completed
+from concurrent.futures import as_completed
 
 import datetime
 import requests
@@ -36,20 +33,17 @@ logger = logging.getLogger(__name__)
 
 
 class DataFetcher:
-    def __init__(self, db_session):
+    def __init__(self, db_session, test_mode=False):
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
-
         self.base_url = self.config['history_fetcher']['base_url']
+        self.db_session = db_session
+        self.utils = Utils()
+        self.stage_job_mapping = {}
+        self.test_mode=test_mode
 
         # FIXME currently, the certificate verification is disabled!!!
         self.verify_certificates = self.config.getboolean('history_fetcher', 'verify_certificates')
-
-        self.db_session = db_session
-
-        self.utils = Utils()
-
-        self.stage_job_mapping = {}
 
     def fetch_all_data(self):
         app_ids = self.fetch_applications()
@@ -67,10 +61,12 @@ class DataFetcher:
         """
         logger.info("fetching application data")
 
-        time_filter = self.get_time_filter()
-        # app_data = self.get_json(f"{self.base_url}?status=completed&minEndDate={time_filter}")
-        app_data = self.get_json(f"{self.base_url}?status=completed&limit=3")
-        logger.info(f"Time filter: >= {time_filter}. {len(app_data)} new application records found.")
+        if self.test_mode:
+            app_data = self.get_json(f"{self.base_url}?status=completed&limit=3")
+        else:
+            time_filter = self.get_time_filter()
+            app_data = self.get_json(f"{self.base_url}?status=completed&minEndDate={time_filter}")
+            logger.info(f"Time filter: >= {time_filter}. {len(app_data)} new application records found.")
 
         # apps in cluster mode contain attemptId, client mode applications don't. The environment URLs then differ.
         env_urls = []
@@ -83,8 +79,6 @@ class DataFetcher:
                 app['mode'] = "client"
 
         env_data = self.get_jsons_parallel(env_urls)
-        for i in as_completed(env_data.values()):
-            pass
 
         app_ids = []
 
@@ -114,10 +108,6 @@ class DataFetcher:
         urls = [f"{self.base_url}/{app_id}/executors" for app_id in app_ids]
 
         executors_data = self.get_jsons_parallel(urls)
-
-        # wait until all the data are received
-        for i in as_completed(executors_data.values()):
-            pass
 
         for app_id, executors_per_app in executors_data.items():
             if not executors_per_app.result():
@@ -162,10 +152,6 @@ class DataFetcher:
 
         jobs_data = self.get_jsons_parallel(urls)
 
-        # wait until all the data are received
-        for i in as_completed(jobs_data.values()):
-            pass
-
         for app_id, jobs_per_app in jobs_data.items():
             if not jobs_per_app.result():  # job list might be empty
                 continue
@@ -201,10 +187,6 @@ class DataFetcher:
         urls = [f"{self.base_url}/{app_id}/stages" for app_id in app_ids]
 
         stages_data = self.get_jsons_parallel(urls)
-
-        # wait until all the data are received
-        for i in as_completed(stages_data.values()):
-            pass
 
         app_stage_mapping = {}
 
@@ -263,10 +245,6 @@ class DataFetcher:
 
         stage_statistics_data = self.get_jsons_parallel(urls, key="stage_key")
 
-        # wait until all the data are received
-        for i in as_completed(stage_statistics_data.values()):
-            pass
-
         for stage_key, stage_statistics_future in stage_statistics_data.items():
             stage_statistics = stage_statistics_future.result()
             if not stage_statistics:
@@ -312,10 +290,6 @@ class DataFetcher:
                 for app_id, stage_list in app_stage_mapping.items() for stage_id in stage_list]
 
         tasks_data = self.get_jsons_parallel(urls, key="stage_key")
-
-        # wait until all the data are received
-        for i in as_completed(tasks_data.values()):
-            pass
 
         for stage_key, tasks_future in tasks_data.items():
             tasks = tasks_future.result()
@@ -408,17 +382,22 @@ class DataFetcher:
         else:
             result = {self.utils.get_app_id_from_url(url): executor.submit(self.get_json, url) for url in urls}
 
+        # wait until all the data are received
+        for i in as_completed(result.values()):
+            pass
+
         return result
 
     def get_time_filter(self):
         """
         Gets timestamp, one millisecond newer than the endTime of the newest application found on Spark History Server.
+        If
         :return: timestamp in format 2020-01-01T01:01:01.123GMT
         """
         max_date = self.db_session.query(func.max(Application.end_time))[0][0]
         if max_date is None:
             max_date = datetime.datetime(1970, 1, 1, 0, 0, 0, 0)
-        fmt = "%Y-%m-%dT%H:%M:%S.%f" # example: 2020-10-23T12:34:56.012345
+        fmt = "%Y-%m-%dT%H:%M:%S.%f"  # example: 2020-10-23T12:34:56.012345
         time_filter_preformatted = (max_date + datetime.timedelta(milliseconds=1)).strftime(fmt)
         return f"{time_filter_preformatted[:-3]}GMT"
 

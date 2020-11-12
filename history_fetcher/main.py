@@ -2,6 +2,7 @@ from db.base import Session, engine, Base
 from history_fetcher.data_fetcher import DataFetcher
 import time
 import logging.config
+import argparse
 
 
 """
@@ -16,16 +17,22 @@ Initialize the database
 Base.metadata.create_all(engine)
 session = Session()
 
-# TODO remove this
-session.execute('''TRUNCATE TABLE executor CASCADE''')
-logger.info("truncated table executor")
-session.execute('''TRUNCATE TABLE application CASCADE''')
-logger.info("truncated table application")
-session.commit()
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument("--test-mode", action="store_true", help="fetch some defined number of apps from the history "
+                                                                 "server, regardless of what has been processed before")
+arg_parser.add_argument("--truncate", action="store_true", help="truncate the database before fetching new data")
+args = arg_parser.parse_args()
+
+if args.truncate:
+    session.execute('''TRUNCATE TABLE executor CASCADE''')
+    logger.info("truncated table executor")
+    session.execute('''TRUNCATE TABLE application CASCADE''')
+    logger.info("truncated table application")
+    session.commit()
 
 start = time.time()
 
-data_fetcher = DataFetcher(session)
+data_fetcher = DataFetcher(session, test_mode=args.test_mode)
 data_fetcher.fetch_all_data()
 
 session.commit()
