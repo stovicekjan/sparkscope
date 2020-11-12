@@ -3,12 +3,13 @@ from history_fetcher.data_fetcher import DataFetcher
 import time
 import logging.config
 import argparse
+import os
 
 
 """
 Set up logger
 """
-logging.config.fileConfig('logger.conf')
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logger.conf'))
 logger = logging.getLogger(__name__)
 
 """

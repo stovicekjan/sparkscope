@@ -1,11 +1,3 @@
-[database_connection]
-user=your_username
-password=your_password
-hostname=localhost:5432
-database_name=sparkscope
-
-
-
 [history_fetcher]
 
 # url of the Spark History Server API's main endpoint (list of the applications)
