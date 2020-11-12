@@ -43,7 +43,7 @@ class DataFetcher:
         self.test_mode=test_mode
 
         # FIXME currently, the certificate verification is disabled!!!
-        self.verify_certificates = self.config.getboolean('history_fetcher', 'verify_certificates')
+        self.verify_certificates = self.config.getboolean('security', 'verify_certificates')
 
     def fetch_all_data(self):
         app_ids = self.fetch_applications()

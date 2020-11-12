@@ -1,5 +1,13 @@
 [database_connection]
+
+# database user with write permissions
 user=your_username
+
+# the user's password
 password=your_password
+
+# database hostname and port number (format "localhost:5432")
 hostname=localhost:5432
+
+# name of the database
 database_name=sparkscope

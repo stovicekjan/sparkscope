@@ -3,9 +3,17 @@
 # url of the Spark History Server API's main endpoint (list of the applications)
 base_url=https://history.server.address.com:18488/api/v1/applications
 
-# True if the History Server certificates should be verified
-verify_certificates=False
-
 # Number of parallel threads used for sending requests to History Server
 threadpool_size=5
 
+
+[testing]
+
+# number of the newest applications that should be fetched in the test mode of History Fetcher
+apps_number=5
+
+
+[security]
+
+# True if the History Server certificates should be verified
+verify_certificates=False

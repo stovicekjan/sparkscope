@@ -1,3 +1,6 @@
+# for detailed information, visit Python Logging library documentation:
+# https://docs.python.org/3/howto/logging.html#configuring-logging
+
 [loggers]
 keys=root,main,dataFetcher
 
