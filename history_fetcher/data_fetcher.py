@@ -109,7 +109,7 @@ class DataFetcher:
     def fetch_executors(self, app_ids):
         logger.info(f"Fetching executors data")
 
-        urls = [f"{self.base_url}/{app_id}/executors" for app_id in app_ids]
+        urls = [f"{self.base_url}/{app_id}/allexecutors" for app_id in app_ids]
 
         executors_data = self.get_jsons_parallel(urls)
 
@@ -139,6 +139,8 @@ class DataFetcher:
                     'is_blacklisted': executor['isBlacklisted'],
                     'max_memory': executor['maxMemory'],
                     'add_time': executor['addTime'],
+                    'remove_time': self.utils.get_prop(executor, 'removeTime'),
+                    'remove_reason': self.utils.get_prop(executor, 'removeReason'),
                     'executor_stdout_log': self.utils.get_prop(executor['executorLogs'], 'stdout'),
                     'executor_stderr_log': self.utils.get_prop(executor['executorLogs'], 'stderr'),
                     'used_on_heap_storage_memory': self.utils.get_prop(executor['memoryMetrics'], 'usedOnHeapStorageMemory'),

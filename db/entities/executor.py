@@ -29,6 +29,8 @@ class Executor(Base):
     is_blacklisted = Column(Boolean)
     max_memory = Column(BigInteger)
     add_time = Column(DateTime)
+    remove_time = Column(DateTime)
+    remove_reason = Column(String)
     executor_stdout_log = Column(String)
     executor_stderr_log = Column(String)
     used_on_heap_storage_memory = Column(String)
@@ -59,6 +61,8 @@ class Executor(Base):
         self.is_blacklisted = attributes["is_blacklisted"]
         self.max_memory = attributes["max_memory"]
         self.add_time = attributes["add_time"]
+        self.remove_time = attributes["remove_time"]
+        self.remove_reason = attributes["remove_reason"]
         self.executor_stdout_log = attributes["executor_stdout_log"]
         self.executor_stderr_log = attributes["executor_stderr_log"]
         self.used_on_heap_storage_memory = attributes["used_on_heap_storage_memory"]
