@@ -25,10 +25,8 @@ arg_parser.add_argument("--truncate", action="store_true", help="truncate the da
 args = arg_parser.parse_args()
 
 if args.truncate:
-    session.execute('''TRUNCATE TABLE executor CASCADE''')
-    logger.info("truncated table executor")
     session.execute('''TRUNCATE TABLE application CASCADE''')
-    logger.info("truncated table application")
+    logger.info("Truncated the database")
     session.commit()
 
 start = time.time()
