@@ -18,7 +18,7 @@ from db.entities.stage_statistics import StageStatistics
 from db.entities.task import Task
 from history_fetcher.utils import Utils
 
-# TODO suppress InsecureRequestWarning while not verifying the certificates
+# suppress InsecureRequestWarning while not verifying the certificates
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 """
@@ -59,14 +59,15 @@ class DataFetcher:
 
         :return: list of application id's
         """
-        logger.info("fetching application data")
-
         if self.test_mode:
-            app_data = self.get_json(f"{self.base_url}?status=completed&limit=3")
+            limit = self.config.getint('testing', 'apps_number')
+            logger.info(f"Test mode active. Fetching {limit} applications.")
+            app_data = self.get_json(f"{self.base_url}?status=completed&limit={limit}")
         else:
             time_filter = self.get_time_filter()
             app_data = self.get_json(f"{self.base_url}?status=completed&minEndDate={time_filter}")
             logger.info(f"Time filter: >= {time_filter}. {len(app_data)} new application records found.")
+        logger.info("fetching application data")
 
         # apps in cluster mode contain attemptId, client mode applications don't. The environment URLs then differ.
         env_urls = []
