@@ -10,7 +10,7 @@ class SparkscopeLogger(logging.getLoggerClass()):
 
     def trace(self, msg, *args, **kwargs):
         if self.isEnabledFor(TRACE_LEVEL_NUM):
-            self.log(TRACE_LEVEL_NUM, msg, args, **kwargs)
+            self.log(TRACE_LEVEL_NUM, msg, *args, **kwargs)
 
 
 logging.setLoggerClass(SparkscopeLogger)

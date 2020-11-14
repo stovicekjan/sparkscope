@@ -7,8 +7,7 @@ from logger.logger import SparkscopeLogger
 """
 Set up logger
 """
-# logger = logging.getLogger(__name__)
-logger = SparkscopeLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Utils:

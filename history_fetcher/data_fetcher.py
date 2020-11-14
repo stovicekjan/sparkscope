@@ -18,8 +18,6 @@ from db.entities.stage_statistics import StageStatistics
 from db.entities.task import Task
 from history_fetcher.utils import Utils
 
-from logger.logger import SparkscopeLogger
-
 # suppress InsecureRequestWarning while not verifying the certificates
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
@@ -31,8 +29,7 @@ thread_local = threading.local()
 """
 Set up logger
 """
-# logger = logging.getLogger(__name__)
-logger = SparkscopeLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class DataFetcher:
@@ -363,9 +360,9 @@ class DataFetcher:
         """
         http_session = self.get_http_session()
         try:
-            logger.debug(f">>> REQ: {self.utils.get_app_id_from_url(url)}")
+            logger.trace(f">>> REQ: {url}")
             response = http_session.get(url, verify=self.verify_certificates)
-            logger.debug(f"<<< RSP: {self.utils.get_app_id_from_url(url)}")
+            logger.trace(f"<<< RSP: {url}")
             return response.json()
         except Exception as e:
             logger.warning(f"Could not open {url}: {e}")

@@ -10,8 +10,7 @@ from logger.logger import SparkscopeLogger
 Set up logger
 """
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logger.conf'))
-# logger = logging.getLogger(__name__)
-logger = SparkscopeLogger(__name__)
+logger = logging.getLogger(__name__)
 
 """
 Initialize the database
