@@ -53,6 +53,8 @@ class DataFetcher:
         self.fetch_stage_statistics(app_stage_mapping)
         self.fetch_tasks(app_stage_mapping)
 
+        return app_ids
+
 
     def fetch_applications(self):
         """
@@ -67,7 +69,7 @@ class DataFetcher:
             time_filter = self.get_time_filter()
             app_data = self.get_json(f"{self.base_url}?status=completed&minEndDate={time_filter}")
             logger.info(f"Time filter: >= {time_filter}. {len(app_data)} new application records found.")
-        logger.info("fetching application data")
+        logger.debug("Fetching application data...")
 
         # apps in cluster mode contain attemptId, client mode applications don't. The environment URLs then differ.
         env_urls = []
@@ -100,15 +102,18 @@ class DataFetcher:
                 'mode': app['mode']
             }
             self.db_session.add(Application(app_attributes))
+        logger.info(f"Fetched {len(app_data)} applications.")
 
         return app_ids
 
     def fetch_executors(self, app_ids):
-        logger.info(f"Fetching executors data")
+        logger.debug(f"Fetching executors data...")
 
         urls = [f"{self.base_url}/{app_id}/allexecutors" for app_id in app_ids]
 
         executors_data = self.get_jsons_parallel(urls)
+
+        executor_count = 0
 
         for app_id, executors_per_app in executors_data.items():
             if not executors_per_app.result():
@@ -148,12 +153,18 @@ class DataFetcher:
                 }
                 self.db_session.add(Executor(executor_attributes))
 
+            executor_count += len(executors_per_app.result())
+
+        logger.info(f"Fetched {executor_count} executors.")
+
     def fetch_jobs(self, app_ids):
-        logger.info(f"Fetching jobs data")
+        logger.debug(f"Fetching jobs data...")
 
         urls = [f"{self.base_url}/{app_id}/jobs" for app_id in app_ids]
 
         jobs_data = self.get_jsons_parallel(urls)
+
+        job_count = 0
 
         for app_id, jobs_per_app in jobs_data.items():
             if not jobs_per_app.result():  # job list might be empty
@@ -184,14 +195,20 @@ class DataFetcher:
 
                 self.db_session.add(Job(job_attributes))
 
+            job_count += len(jobs_per_app.result())
+
+        logger.info(f"Fetched {job_count} jobs.")
+
     def fetch_stages(self, app_ids):
-        logger.info(f"Fetching stages data")
+        logger.debug(f"Fetching stages data...")
 
         urls = [f"{self.base_url}/{app_id}/stages" for app_id in app_ids]
 
         stages_data = self.get_jsons_parallel(urls)
 
         app_stage_mapping = {}
+
+        stage_count = 0
 
         for app_id, stages_per_app in stages_data.items():
             if not stages_per_app.result():
@@ -238,20 +255,28 @@ class DataFetcher:
                 app_stage_mapping[app_id].append(stage_attributes['stage_id'])
                 self.db_session.add(Stage(stage_attributes))
 
+            stage_count += len(stages_per_app.result())
+
+        logger.info(f"Fetched {stage_count} stages.")
+
         return app_stage_mapping
 
     def fetch_stage_statistics(self, app_stage_mapping):
-        logger.info(f"Fetching stage statistics data")
+        logger.info(f"Fetching stage statistics data...")
 
         urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskSummary"
                 for app_id, stage_list in app_stage_mapping.items() for stage_id in stage_list]
 
         stage_statistics_data = self.get_jsons_parallel(urls, key="stage_key")
 
+        stage_stat_count = 0
+
         for stage_key, stage_statistics_future in stage_statistics_data.items():
             stage_statistics = stage_statistics_future.result()
             if not stage_statistics:
                 continue
+
+            stage_stat_count += 1
 
             stage_statistics_attributes = {
                 'stage_key': stage_key,
@@ -286,13 +311,17 @@ class DataFetcher:
             }
             self.db_session.add(StageStatistics(stage_statistics_attributes))
 
+        logger.info(f"Fetched {stage_stat_count} stage statistics records.")
+
     def fetch_tasks(self, app_stage_mapping):
-        logger.info(f"Fetching tasks data")
+        logger.debug(f"Fetching tasks data...")
 
         urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskList"
                 for app_id, stage_list in app_stage_mapping.items() for stage_id in stage_list]
 
         tasks_data = self.get_jsons_parallel(urls, key="stage_key")
+
+        task_count = 0
 
         for stage_key, tasks_future in tasks_data.items():
             tasks = tasks_future.result()
@@ -342,6 +371,10 @@ class DataFetcher:
                     'shuffle_records_written': task['taskMetrics']['shuffleWriteMetrics']['recordsWritten']
                 }
                 self.db_session.add(Task(tasks_attributes))
+
+            task_count += len(tasks)
+
+        logger.info(f"Fetched {task_count} tasks.")
 
     def get_http_session(self):
         """

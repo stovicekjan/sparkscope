@@ -32,11 +32,20 @@ if args.truncate:
 start = time.time()
 
 data_fetcher = DataFetcher(session, test_mode=args.test_mode)
-data_fetcher.fetch_all_data()
+app_ids = data_fetcher.fetch_all_data()
 
 session.commit()
 session.close()
 
 end = time.time()
 
-logger.info(f"Time: {end-start} sec")
+logger.info(f"""
+====================================================================================================================
+Finished: Saved {len(app_ids)} applications metadata into database.
+List of the application_id's: {app_ids}
+Elapsed time: {(end-start):.3f} seconds
+====================================================================================================================
+""")
+
+
+
