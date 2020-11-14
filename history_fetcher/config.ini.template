@@ -6,6 +6,10 @@ base_url=https://history.server.address.com:18488/api/v1/applications
 # Number of parallel threads used for sending requests to History Server
 threadpool_size=5
 
+# Maximum number of the tasks (sorted by executor_runtime descending) per each stage which should be fetched.
+# Delete/comment out for fetching all tasks.
+# task_limit=50
+
 
 [testing]
 

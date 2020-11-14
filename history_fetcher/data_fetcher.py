@@ -316,7 +316,9 @@ class DataFetcher:
     def fetch_tasks(self, app_stage_mapping):
         logger.debug(f"Fetching tasks data...")
 
-        urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskList"
+        task_limit = self.config.getint('history_fetcher', 'task_limit', fallback=2147483647)
+
+        urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskList?length={task_limit}&sortBy=-runtime"
                 for app_id, stage_list in app_stage_mapping.items() for stage_id in stage_list]
 
         tasks_data = self.get_jsons_parallel(urls, key="stage_key")
