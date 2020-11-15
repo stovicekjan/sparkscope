@@ -264,7 +264,8 @@ class DataFetcher:
     def fetch_stage_statistics(self, app_stage_mapping):
         logger.info(f"Fetching stage statistics data...")
 
-        urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskSummary"
+        # the quantiles are intentionally hardcoded to avoid unexpected issues after modifying them
+        urls = [f"{self.base_url}/{app_id}/stages/{stage_id}/0/taskSummary?quantiles=0.001,0.25,0.5,0.75,0.999"
                 for app_id, stage_list in app_stage_mapping.items() for stage_id in stage_list]
 
         stage_statistics_data = self.get_jsons_parallel(urls, key="stage_key")
