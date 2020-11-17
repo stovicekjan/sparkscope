@@ -5,7 +5,13 @@ from sqlalchemy.orm import relationship
 
 from db.base import Base
 
+
 class Executor(Base):
+    """
+    A class used to represent the Executor entity in the database.
+
+    Each executor in each Spark application should be represented by one record in the Executor table.
+    """
     __tablename__ = 'executor'
 
     executor_key = Column(String, primary_key=True)
@@ -39,8 +45,11 @@ class Executor(Base):
     total_off_heap_storage_memory = Column(String)
     blacklisted_in_stages = Column(String)  # TODO implement this as a relationship to stage?
 
-
     def __init__(self, attributes):
+        """
+        Create an Executor object.
+        :param attributes: dictionary {name: value} containing the attributes
+        """
         self.executor_key = attributes["executor_key"]
         self.app_id = attributes["app_id"]
         self.id = attributes["id"]

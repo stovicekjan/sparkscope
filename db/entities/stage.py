@@ -7,6 +7,11 @@ from db.base import Base
 
 
 class Stage(Base):
+    """
+    A class used to represent the Stage entity in the database.
+
+    Each stage within each Spark application should be represented by one record in the Stage table.
+    """
     __tablename__ = 'stage'
 
     stage_key = Column(String, primary_key=True)
@@ -46,10 +51,11 @@ class Stage(Base):
     accumulator_updates = Column(ARRAY(String))
     killed_tasks_summary = Column(JSON)
 
-
-
-
     def __init__(self, attributes):
+        """
+        Create a Stage object.
+        :param attributes: dictionary {name: value} containing the attributes
+        """
         self.stage_key = attributes["stage_key"]
         self.app_id = attributes["app_id"]
         self.status = attributes["status"]

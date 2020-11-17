@@ -4,13 +4,14 @@ import logging
 import configparser
 from logger.logger import SparkscopeLogger
 
-"""
-Set up logger
-"""
+# Set up logger
 logger = logging.getLogger(__name__)
 
 
 class Utils:
+    """
+    Utilities for History Fetcher
+    """
     def __init__(self):
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
@@ -18,29 +19,35 @@ class Utils:
 
     def get_app_id_from_url(self, url):
         """
-        Gets application_id from url
+        Get application_id from url.
         :param url: url with pattern 'https://history.server:port/api/v1/applications/<app_id>/something_more'
-        :return: application_id
+        :return: application_id or None (if the url is invalid or malformed)
         """
         parse = re.search(rf'{self.base_url}/([a-zA-Z0-9\-_]*)(/.*)*', url.rstrip("/"))
         return None if parse is None else parse.group(1)
 
     def get_stage_key_from_url(self, url):
         """
-        Gets stage_key from url.
-        :param url: url with pattern 'https://history.server:port/api/v1/applications/<app_id>/stages/<stage_id>
-        :return: stage_key
+        Get stage_key from url.
+        :param url: url with pattern 'https://history.server:port/api/v1/applications/<app_id>/stages/<stage_id>/...
+        :return: stage_key or None (if the url is invalid or malformed)
         """
         parse = re.search(rf'{self.base_url}/([a-zA-Z0-9\-_]+)/stages/([0-9]+)(/.*)*', url.rstrip("/"))
         stage_key = None if parse is None else f"{parse.group(1)}_{parse.group(2)}"
         return stage_key
 
     def get_app_id_from_stage_key(self, stage_key):
+        """
+        Get application_id from stage_key (as a substring)
+        :param stage_key: A stage key with pattern <application_id>_<number>
+        :return: application_id or None (if the stage_key is malformed)
+        """
         parse = re.search(rf'([a-zA-Z0-9\-_]+)_([0-9]+)', stage_key)
         app_id = None if parse is None else parse.group(1)
         return app_id
 
     def get_prop(self, obj, prop):
+        # TODO enable getting nested properties (receive list of args)
         """
         Get property value if property exists
         :param obj: dictionary

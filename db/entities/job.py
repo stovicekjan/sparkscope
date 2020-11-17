@@ -7,6 +7,11 @@ from db.base import Base
 
 
 class Job(Base):
+    """
+    A class used to represent the Job entity in the database.
+
+    Each job within each Spark application should be represented by one record in the Job table.
+    """
     __tablename__ = 'job'
 
     job_key = Column(String, primary_key=True)
@@ -30,6 +35,10 @@ class Job(Base):
     killed_tasks_summary = Column(JSON)
 
     def __init__(self, attributes):
+        """
+        Create a Job object.
+        :param attributes: dictionary {name: value} containing the attributes
+        """
         self.job_key = attributes["job_key"]
         self.app_id = attributes["app_id"]
         self.job_id = attributes["job_id"]

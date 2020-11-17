@@ -7,6 +7,13 @@ from db.base import Base
 
 
 class StageStatistics(Base):
+    """
+    A class used to represent the stage_statistics entity in the database.
+
+    Each stage in each Spark application should be represented by one record in the stage_statistics table.
+    All the attributes (except for stage_key) should contain an array of five values, one for each quantile:
+    0.001, 0.25, 0.5, 0.75, 0.999
+    """
     __tablename__ = 'stage_statistics'
 
     stage_key = Column(String, ForeignKey('stage.stage_key'), primary_key=True)
@@ -40,10 +47,11 @@ class StageStatistics(Base):
     shuffle_write_records = Column(ARRAY(Float))
     shuffle_write_time = Column(ARRAY(Float))
 
-
-
-
     def __init__(self, attributes):
+        """
+        Create a StageStatistics object.
+        :param attributes: dictionary {name: value} containing the attributes
+        """
         self.stage_key = attributes["stage_key"]
         self.quantiles = attributes["quantiles"]
         self.executor_deserialize_time = attributes["executor_deserialize_time"]

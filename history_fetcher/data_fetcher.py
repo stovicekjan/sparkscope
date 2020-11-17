@@ -21,31 +21,41 @@ from history_fetcher.utils import Utils
 # suppress InsecureRequestWarning while not verifying the certificates
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-"""
-Create a thread specific object
-"""
+# Create a thread specific object
 thread_local = threading.local()
 
-"""
-Set up logger
-"""
+# Set up logger
 logger = logging.getLogger(__name__)
 
 
 class DataFetcher:
+    """
+    A class responsible for fetching data from Spark History Server (SHS) to a database
+    """
     def __init__(self, db_session, test_mode=False):
+        """
+        Create DataFetcher object
+        :param db_session: database session
+        :param test_mode: True for fetching a constant number of applications metadata from SHS. If False, all the
+        non-processed applications will be fetched
+        """
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
         self.base_url = self.config['history_fetcher']['base_url']
-        self.db_session = db_session
-        self.utils = Utils()
-        self.stage_job_mapping = {}
-        self.test_mode=test_mode
-
-        # FIXME currently, the certificate verification is disabled!!!
         self.verify_certificates = self.config.getboolean('security', 'verify_certificates')
 
+        self.db_session = db_session
+        self.test_mode = test_mode
+
+        self.utils = Utils()
+        self.stage_job_mapping = {}
+
     def fetch_all_data(self):
+        """
+        Fetch all the levels of data (Applications, Executors, Jobs, Stages, Stage Statistics, Tasks) from the SHS and
+        store them in the database
+        :return: list of the fetched application_id's
+        """
         app_ids = self.fetch_applications()
         self.fetch_executors(app_ids)
         self.fetch_jobs(app_ids)
@@ -55,10 +65,9 @@ class DataFetcher:
 
         return app_ids
 
-
     def fetch_applications(self):
         """
-
+        Fetch the applications data from SHS and store them in the database
         :return: list of application id's
         """
         if self.test_mode:
@@ -107,6 +116,10 @@ class DataFetcher:
         return app_ids
 
     def fetch_executors(self, app_ids):
+        """
+        For each application being fetched, fetch data about all the executors.
+        :param app_ids: list of application_id's to process
+        """
         logger.debug(f"Fetching executors data...")
 
         urls = [f"{self.base_url}/{app_id}/allexecutors" for app_id in app_ids]
@@ -145,10 +158,14 @@ class DataFetcher:
                     'remove_reason': self.utils.get_prop(executor, 'removeReason'),
                     'executor_stdout_log': self.utils.get_prop(executor['executorLogs'], 'stdout'),
                     'executor_stderr_log': self.utils.get_prop(executor['executorLogs'], 'stderr'),
-                    'used_on_heap_storage_memory': self.utils.get_prop(executor['memoryMetrics'], 'usedOnHeapStorageMemory'),
-                    'used_off_heap_storage_memory': self.utils.get_prop(executor['memoryMetrics'], 'usedOffHeapStorageMemory'),
-                    'total_on_heap_storage_memory': self.utils.get_prop(executor['memoryMetrics'], 'totalOnHeapStorageMemory'),
-                    'total_off_heap_storage_memory': self.utils.get_prop(executor['memoryMetrics'], 'totalOffHeapStorageMemory'),
+                    'used_on_heap_storage_memory': self.utils.get_prop(
+                        self.utils.get_prop(executor, 'memoryMetrics'), 'usedOnHeapStorageMemory'),
+                    'used_off_heap_storage_memory': self.utils.get_prop(
+                        self.utils.get_prop(executor, 'memoryMetrics'), 'usedOffHeapStorageMemory'),
+                    'total_on_heap_storage_memory': self.utils.get_prop(
+                        self.utils.get_prop(executor, 'memoryMetrics'), 'totalOnHeapStorageMemory'),
+                    'total_off_heap_storage_memory': self.utils.get_prop(
+                        self.utils.get_prop(executor, 'memoryMetrics'),  'totalOffHeapStorageMemory'),
                     'blacklisted_in_stages': executor['blacklistedInStages']
                 }
                 self.db_session.add(Executor(executor_attributes))
@@ -158,6 +175,10 @@ class DataFetcher:
         logger.info(f"Fetched {executor_count} executors.")
 
     def fetch_jobs(self, app_ids):
+        """
+        For each application being fetched, fetch data about all the jobs.
+        :param app_ids: list of application_id's to process
+        """
         logger.debug(f"Fetching jobs data...")
 
         urls = [f"{self.base_url}/{app_id}/jobs" for app_id in app_ids]
@@ -200,13 +221,18 @@ class DataFetcher:
         logger.info(f"Fetched {job_count} jobs.")
 
     def fetch_stages(self, app_ids):
+        """
+        For each application being fetched, fetch data about all the jobs.
+        :param app_ids: list of application_id's to process
+        :return: dictionary {application_id: List[stage_id]} mapping stages to the corresponding applications
+        """
         logger.debug(f"Fetching stages data...")
 
         urls = [f"{self.base_url}/{app_id}/stages" for app_id in app_ids]
 
         stages_data = self.get_jsons_parallel(urls)
 
-        app_stage_mapping = {}
+        app_stage_mapping = {}  # dict[application_id, List[stage_id]]
 
         stage_count = 0
 
@@ -262,6 +288,11 @@ class DataFetcher:
         return app_stage_mapping
 
     def fetch_stage_statistics(self, app_stage_mapping):
+        """
+        For each application and each stage being fetched, fetch data about Task Summary / Stage Statistics.
+        :param app_stage_mapping: dictionary {application_id: List[stage_id]} mapping the stages to the corresponding
+        applications
+        """
         logger.info(f"Fetching stage statistics data...")
 
         # the quantiles are intentionally hardcoded to avoid unexpected issues after modifying them
@@ -315,6 +346,12 @@ class DataFetcher:
         logger.info(f"Fetched {stage_stat_count} stage statistics records.")
 
     def fetch_tasks(self, app_stage_mapping):
+        """
+        For each application and each stage being fetched, fetch detailed data about tasks. The number of tasks being
+        fetched is read from the config file.
+        :param app_stage_mapping: dictionary {application_id: List[stage_id]} mapping the stages to the corresponding
+        applications
+        """
         logger.debug(f"Fetching tasks data...")
 
         task_limit = self.config.getint('history_fetcher', 'task_limit', fallback=2147483647)
@@ -390,7 +427,7 @@ class DataFetcher:
 
     def get_json(self, url):
         """
-        Gets the json payload from the specified URL.
+        Get the json payload from the specified URL.
         :param url: URL
         :return: json payload or None if not able to get the json
         """
@@ -406,11 +443,16 @@ class DataFetcher:
 
     def get_jsons_parallel(self, urls, key="app_id"):
         """
-        Launches ThreadPoolExecutor, opens multiple http connections to History Server and gets the payload for each url
-        :param urls: list of urls to access
-        :return: dictionary {id: payload} TODO
+        Open multiple HTTP connections and collect the responses in parallel
+        :param urls: a list of endpoints that should be processed
+        :param key: "app_id" or "stage_key"
+        :raises ValueError: if key is not in ["app_id", "stage_key"]
+        :return: dictionary {application_id: payload} for key == "app_id" or dictionary {stage_key: payload} for
+        key == "stage_key"
         """
         if key not in ["app_id", "stage_key"]:
+            # TODO improve error logging
+            logger.error(f"Unsupported key: {key}")
             raise ValueError(f"Unsupported key: {key}")
 
         threadpool_size = self.config.getint('history_fetcher', 'threadpool_size')
@@ -429,8 +471,9 @@ class DataFetcher:
 
     def get_time_filter(self):
         """
-        Gets timestamp, one millisecond newer than the endTime of the newest application found on Spark History Server.
-        If
+        Get timestamp, one millisecond newer than the endTime of the newest application found in the database.
+        If no applications are found in the database (the initial load), 1970-01-01T00:00:00.001GMT should be returned.
+        Used as a delta-logic criterion.
         :return: timestamp in format 2020-01-01T01:01:01.123GMT
         """
         max_date = self.db_session.query(func.max(Application.end_time))[0][0]
@@ -441,6 +484,14 @@ class DataFetcher:
         return f"{time_filter_preformatted[:-3]}GMT"
 
     def map_jobs_to_stages(self, stage_ids, job_key, app_id):
+        """
+        Map the job_key to the corresponding job_key. Add new data to the dictionary {stage_key: job_key}.
+        Note: stage_key is formed as {application_id}_{stage_id}
+        :param stage_ids: list of stage_id's
+        :param job_key: job_key
+        :param app_id: application_id
+        :return:
+        """
         for stage_id in stage_ids:
             self.stage_job_mapping[f"{app_id}_{stage_id}"] = job_key
 

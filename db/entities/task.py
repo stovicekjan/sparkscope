@@ -7,6 +7,11 @@ from db.base import Base
 
 
 class Task(Base):
+    """
+    A class used to represent the Task entity in the database.
+
+    Each task within each stage within each Spark application should be represented by one record in the Task table.
+    """
     __tablename__ = 'task'
 
     task_key = Column(String, primary_key=True)
@@ -50,6 +55,10 @@ class Task(Base):
     shuffle_records_written = Column(BigInteger)
 
     def __init__(self, attributes):
+        """
+        Create an Executor object.
+        :param attributes: dictionary {name: value} containing the attributes
+        """
         self.task_key = attributes['task_key']
         self.stage_key = attributes['stage_key']
         self.task_id = attributes['task_id']

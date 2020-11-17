@@ -5,6 +5,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+"""
+A module for the database initializaion
+"""
+
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), 'db_config.ini'))
 
@@ -17,4 +21,5 @@ engine = create_engine(f'postgresql://{user}:{password}@{hostname}/{database_nam
 
 Session = sessionmaker(bind=engine)
 
+# establish the ORM
 Base = declarative_base()
