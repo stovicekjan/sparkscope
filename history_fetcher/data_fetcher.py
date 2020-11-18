@@ -447,7 +447,6 @@ class DataFetcher:
         key == "stage_key"
         """
         if key not in ["app_id", "stage_key"]:
-            # TODO improve error logging
             logger.error(f"Unsupported key: {key}")
             raise ValueError(f"Unsupported key: {key}")
 
