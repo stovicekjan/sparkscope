@@ -1,4 +1,6 @@
 import pytest
+import time
+
 from history_fetcher.utils import Utils
 
 u = Utils()
@@ -58,14 +60,18 @@ def test_get_prop():
         'prop1': 'val1',
         'prop2': {
             'sub1': 'val3',
-            'sub2': 'val4'
+            'sub2': {
+                'subsub1': 'val5',
+                'subsub2': 'val6'
+            }
         }
     }
 
     assert u.get_prop(obj1, "prop1") == "val1"
     assert u.get_prop(obj1, "prop3") is None
-    assert u.get_prop(obj1['prop2'], 'sub1') == 'val3'
-    assert u.get_prop(obj1['prop2'], 'sub3') is None
+    assert u.get_prop(obj1, 'prop2', 'sub1') == 'val3'
+    assert u.get_prop(obj1, 'prop2', 'sub3') is None
+    assert u.get_prop(obj1, 'prop2', 'sub2', 'subsub2') is 'val6'
 
 
 

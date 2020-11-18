@@ -46,33 +46,39 @@ class Utils:
         app_id = None if parse is None else parse.group(1)
         return app_id
 
-    def get_prop(self, obj, prop):
-        # TODO enable getting nested properties (receive list of args)
+    def get_prop(self, obj, *prop_list):
         """
-        Get property value if property exists
+        Get property value if property exists. Works recursively with a list representation of the property hierarchy.
+        E.g. with obj = {'a': 1, 'b': {'c': {'d': 2}}}, calling get_prop(obj, 'b', 'c', 'd') returns 2.
         :param obj: dictionary
-        :param prop: the property key
-        :return:
+        :param prop_list: list of the keys
+        :return: the property value or None if the property doesn't exist
         """
-        try:
-            return obj[prop]
-        except:
+        if len(prop_list) == 1:
+            if prop_list[0] in obj.keys():
+                return obj[prop_list[0]]
+            else:
+                return None
+
+        if prop_list[0] in obj.keys():
+            return self.get_prop(obj[prop_list[0]], *prop_list[1:])
+        else:
             return None
 
-    # TODO refactor to make this more generic (get_attribute_from_array or so)
-    def get_sun_java_command(self, env_data, app_id):
+    def get_system_property(self, env_data, app_id, property_name):
         """
-        Extracts sun.java.command (spark-submit with all the parameters) from environment json
+        Extracts the desired systemProperty, which is a part of Environment endpoint
         :param env_data: environment json
         :param app_id: application_id
-        :return: string with sun.java.command (spark-submit)
+        :param property_name: name of the property that should be found
+        :return: the value of the property
         """
         system_properties = self.get_prop(env_data, 'systemProperties')
         if system_properties is None:
             return None
-        command = [v for [k, v] in system_properties if k == 'sun.java.command']
+        command = [v for [k, v] in system_properties if k == property_name]
         if len(command) != 1:
-            logger.warning(f"cannot obtain sun.java.command for {app_id}")
+            logger.warning(f"cannot obtain {property_name} for {app_id}")
             return None
         return command[0]
 

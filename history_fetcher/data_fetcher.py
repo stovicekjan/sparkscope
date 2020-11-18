@@ -107,7 +107,7 @@ class DataFetcher:
                 'completed': app['attempts'][0]['completed'],
                 'runtime': self.utils.get_prop(app_env_data, 'runtime'),
                 'spark_properties': self.utils.get_prop(app_env_data, 'sparkProperties'),
-                'spark_command': self.utils.get_sun_java_command(app_env_data, app['id']),
+                'spark_command': self.utils.get_system_property(app_env_data, app['id'], 'sun.java.command'),
                 'mode': app['mode']
             }
             self.db_session.add(Application(app_attributes))
@@ -156,16 +156,12 @@ class DataFetcher:
                     'add_time': executor['addTime'],
                     'remove_time': self.utils.get_prop(executor, 'removeTime'),
                     'remove_reason': self.utils.get_prop(executor, 'removeReason'),
-                    'executor_stdout_log': self.utils.get_prop(executor['executorLogs'], 'stdout'),
-                    'executor_stderr_log': self.utils.get_prop(executor['executorLogs'], 'stderr'),
-                    'used_on_heap_storage_memory': self.utils.get_prop(
-                        self.utils.get_prop(executor, 'memoryMetrics'), 'usedOnHeapStorageMemory'),
-                    'used_off_heap_storage_memory': self.utils.get_prop(
-                        self.utils.get_prop(executor, 'memoryMetrics'), 'usedOffHeapStorageMemory'),
-                    'total_on_heap_storage_memory': self.utils.get_prop(
-                        self.utils.get_prop(executor, 'memoryMetrics'), 'totalOnHeapStorageMemory'),
-                    'total_off_heap_storage_memory': self.utils.get_prop(
-                        self.utils.get_prop(executor, 'memoryMetrics'),  'totalOffHeapStorageMemory'),
+                    'executor_stdout_log': self.utils.get_prop(executor, 'executorLogs', 'stdout'),
+                    'executor_stderr_log': self.utils.get_prop(executor, 'executorLogs', 'stderr'),
+                    'used_on_heap_storage_memory': self.utils.get_prop(executor, 'memoryMetrics', 'usedOnHeapStorageMemory'),
+                    'used_off_heap_storage_memory': self.utils.get_prop(executor, 'memoryMetrics', 'usedOffHeapStorageMemory'),
+                    'total_on_heap_storage_memory': self.utils.get_prop(executor, 'memoryMetrics', 'totalOnHeapStorageMemory'),
+                    'total_off_heap_storage_memory': self.utils.get_prop(executor, 'memoryMetrics', 'totalOffHeapStorageMemory'),
                     'blacklisted_in_stages': executor['blacklistedInStages']
                 }
                 self.db_session.add(Executor(executor_attributes))
