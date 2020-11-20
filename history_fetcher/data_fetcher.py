@@ -7,6 +7,7 @@ import threading
 import configparser
 import logging
 import os
+import time
 from sqlalchemy import func
 
 from db.entities.application import Application
@@ -16,6 +17,7 @@ from db.entities.job import Job
 from db.entities.stage import Stage
 from db.entities.stage_statistics import StageStatistics
 from db.entities.task import Task
+from history_fetcher import utils
 from history_fetcher.utils import Utils
 
 # suppress InsecureRequestWarning while not verifying the certificates
@@ -381,30 +383,30 @@ class DataFetcher:
                     'task_locality': task['taskLocality'],
                     'speculative': task['speculative'],
                     'accumulator_updates': task['accumulatorUpdates'],
-                    'executor_deserialize_time': task['taskMetrics']['executorDeserializeTime'],
-                    'executor_deserialize_cpu_time': task['taskMetrics']['executorDeserializeCpuTime'],
-                    'executor_run_time': task['taskMetrics']['executorRunTime'],
-                    'executor_cpu_time': task['taskMetrics']['executorCpuTime'],
-                    'result_size': task['taskMetrics']['resultSize'],
-                    'jvm_gc_time': task['taskMetrics']['jvmGcTime'],
-                    'result_serialization_time': task['taskMetrics']['resultSerializationTime'],
-                    'memory_bytes_spilled': task['taskMetrics']['memoryBytesSpilled'],
-                    'disk_bytes_spilled': task['taskMetrics']['diskBytesSpilled'],
-                    'peak_execution_memory': task['taskMetrics']['peakExecutionMemory'],
-                    'bytes_read': task['taskMetrics']['inputMetrics']['bytesRead'],
-                    'records_read': task['taskMetrics']['inputMetrics']['recordsRead'],
-                    'bytes_written': task['taskMetrics']['outputMetrics']['bytesWritten'],
-                    'records_written': task['taskMetrics']['outputMetrics']['recordsWritten'],
-                    'shuffle_remote_blocks_fetched': task['taskMetrics']['shuffleReadMetrics']['remoteBlocksFetched'],
-                    'shuffle_local_blocks_fetched': task['taskMetrics']['shuffleReadMetrics']['localBlocksFetched'],
-                    'shuffle_fetch_wait_time': task['taskMetrics']['shuffleReadMetrics']['fetchWaitTime'],
-                    'shuffle_remote_bytes_read': task['taskMetrics']['shuffleReadMetrics']['remoteBytesRead'],
-                    'shuffle_remote_bytes_read_to_disk': task['taskMetrics']['shuffleReadMetrics']['remoteBytesReadToDisk'],
-                    'shuffle_local_bytes_read': task['taskMetrics']['shuffleReadMetrics']['localBytesRead'],
-                    'shuffle_records_read': task['taskMetrics']['shuffleReadMetrics']['recordsRead'],
-                    'shuffle_bytes_written': task['taskMetrics']['shuffleWriteMetrics']['bytesWritten'],
-                    'shuffle_write_time': task['taskMetrics']['shuffleWriteMetrics']['writeTime'],
-                    'shuffle_records_written': task['taskMetrics']['shuffleWriteMetrics']['recordsWritten']
+                    'executor_deserialize_time': self.utils.get_prop(task, 'taskMetrics', 'executorDeserializeTime'),
+                    'executor_deserialize_cpu_time': self.utils.get_prop(task, 'taskMetrics', 'executorDeserializeCpuTime'),
+                    'executor_run_time': self.utils.get_prop(task, 'taskMetrics', 'executorRunTime'),
+                    'executor_cpu_time': self.utils.get_prop(task, 'taskMetrics', 'executorCpuTime'),
+                    'result_size': self.utils.get_prop(task, 'taskMetrics', 'resultSize'),
+                    'jvm_gc_time': self.utils.get_prop(task, 'taskMetrics', 'jvmGcTime'),
+                    'result_serialization_time': self.utils.get_prop(task, 'taskMetrics', 'resultSerializationTime'),
+                    'memory_bytes_spilled': self.utils.get_prop(task, 'taskMetrics', 'memoryBytesSpilled'),
+                    'disk_bytes_spilled': self.utils.get_prop(task, 'taskMetrics', 'diskBytesSpilled'),
+                    'peak_execution_memory': self.utils.get_prop(task, 'taskMetrics', 'peakExecutionMemory'),
+                    'bytes_read': self.utils.get_prop(task, 'taskMetrics', 'inputMetrics', 'bytesRead'),
+                    'records_read': self.utils.get_prop(task, 'taskMetrics', 'inputMetrics', 'recordsRead'),
+                    'bytes_written': self.utils.get_prop(task, 'taskMetrics', 'outputMetrics', 'bytesWritten'),
+                    'records_written': self.utils.get_prop(task, 'taskMetrics', 'outputMetrics', 'recordsWritten'),
+                    'shuffle_remote_blocks_fetched': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'remoteBlocksFetched'),
+                    'shuffle_local_blocks_fetched': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'localBlocksFetched'),
+                    'shuffle_fetch_wait_time': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'fetchWaitTime'),
+                    'shuffle_remote_bytes_read': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'remoteBytesRead'),
+                    'shuffle_remote_bytes_read_to_disk': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'remoteBytesReadToDisk'),
+                    'shuffle_local_bytes_read': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'localBytesRead'),
+                    'shuffle_records_read': self.utils.get_prop(task, 'taskMetrics', 'shuffleReadMetrics', 'recordsRead'),
+                    'shuffle_bytes_written': self.utils.get_prop(task, 'taskMetrics', 'shuffleWriteMetrics', 'bytesWritten'),
+                    'shuffle_write_time': self.utils.get_prop(task, 'taskMetrics', 'shuffleWriteMetrics', 'writeTime'),
+                    'shuffle_records_written': self.utils.get_prop(task, 'taskMetrics', 'shuffleWriteMetrics', 'recordsWritten')
                 }
                 self.db_session.add(Task(tasks_attributes))
 
