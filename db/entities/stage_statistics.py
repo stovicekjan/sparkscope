@@ -82,3 +82,36 @@ class StageStatistics(Base):
         self.shuffle_write_records = attributes["shuffle_write_records"]
         self.shuffle_write_time = attributes["shuffle_write_time"]
 
+    @staticmethod
+    def get_fetch_dict(stage_key, stage_statistics):
+        return {
+            'stage_key': stage_key,
+            'quantiles': stage_statistics["quantiles"],
+            'executor_deserialize_time': stage_statistics["executorDeserializeTime"],
+            'executor_deserialize_cpu_time': stage_statistics["executorDeserializeCpuTime"],
+            'executor_run_time': stage_statistics["executorRunTime"],
+            'executor_cpu_time': stage_statistics["executorCpuTime"],
+            'result_size': stage_statistics["resultSize"],
+            'jvm_gc_time': stage_statistics["jvmGcTime"],
+            'result_serialization_time': stage_statistics["resultSerializationTime"],
+            'getting_result_time': stage_statistics["gettingResultTime"],
+            'scheduler_delay': stage_statistics["schedulerDelay"],
+            'peak_execution_memory': stage_statistics["peakExecutionMemory"],
+            'memory_bytes_spilled': stage_statistics["memoryBytesSpilled"],
+            'disk_bytes_spilled': stage_statistics["diskBytesSpilled"],
+            'bytes_read': stage_statistics["inputMetrics"]["bytesRead"],
+            'records_read': stage_statistics["inputMetrics"]["recordsRead"],
+            'bytes_written': stage_statistics["outputMetrics"]["bytesWritten"],
+            'records_written': stage_statistics["outputMetrics"]["recordsWritten"],
+            'shuffle_read_bytes': stage_statistics["shuffleReadMetrics"]["readBytes"],
+            'shuffle_read_records': stage_statistics["shuffleReadMetrics"]["readRecords"],
+            'shuffle_remote_blocks_fetched': stage_statistics["shuffleReadMetrics"]["remoteBlocksFetched"],
+            'shuffle_local_blocks_fetched': stage_statistics["shuffleReadMetrics"]["localBlocksFetched"],
+            'shuffle_fetch_wait_time': stage_statistics["shuffleReadMetrics"]["fetchWaitTime"],
+            'shuffle_remote_bytes_read': stage_statistics["shuffleReadMetrics"]["remoteBytesRead"],
+            'shuffle_remote_bytes_read_to_disk': stage_statistics["shuffleReadMetrics"]["remoteBytesReadToDisk"],
+            'shuffle_total_blocks_fetched': stage_statistics["shuffleReadMetrics"]["totalBlocksFetched"],
+            'shuffle_write_bytes': stage_statistics["shuffleWriteMetrics"]["writeBytes"],
+            'shuffle_write_records': stage_statistics["shuffleWriteMetrics"]["writeRecords"],
+            'shuffle_write_time': stage_statistics["shuffleWriteMetrics"]["writeTime"]
+        }

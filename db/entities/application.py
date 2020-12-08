@@ -2,6 +2,7 @@
 
 from sqlalchemy import Column, String, DateTime, BigInteger, Boolean, JSON
 from db.base import Base
+from history_fetcher.utils import get_prop, get_system_property
 
 
 class Application(Base):
@@ -41,3 +42,18 @@ class Application(Base):
         self.spark_command = attributes['spark_command']
         self.mode = attributes['mode']
 
+    @staticmethod
+    def get_fetch_dict(app, app_env_data):
+        return {
+            'app_id': app['id'],
+            'name': app['name'],
+            'start_time': app['attempts'][0]['startTime'],
+            'end_time': app['attempts'][0]['endTime'],
+            'duration': app['attempts'][0]['duration'],
+            'spark_user': app['attempts'][0]['sparkUser'],
+            'completed': app['attempts'][0]['completed'],
+            'runtime': get_prop(app_env_data, 'runtime'),
+            'spark_properties': get_prop(app_env_data, 'sparkProperties'),
+            'spark_command': get_system_property(app_env_data, app['id'], 'sun.java.command'),
+            'mode': app['mode']
+        }

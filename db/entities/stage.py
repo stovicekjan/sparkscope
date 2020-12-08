@@ -4,6 +4,7 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, BigInteger, Bool
 from sqlalchemy.orm import relationship
 
 from db.base import Base
+from history_fetcher.utils import get_prop
 
 
 class Stage(Base):
@@ -90,3 +91,40 @@ class Stage(Base):
         self.accumulator_updates = attributes["accumulator_updates"]
         self.killed_tasks_summary = attributes["killed_tasks_summary"]
 
+    @staticmethod
+    def get_fetch_dict(app_id, stage, stage_job_mapping):
+        return {
+            'stage_key': f"{app_id}_{stage['stageId']}",
+            'app_id': app_id,
+            'status': stage['status'],
+            'stage_id': stage['stageId'],
+            'attempt_id': stage['attemptId'],
+            'job_key': stage_job_mapping[f"{app_id}_{stage['stageId']}"],
+            'num_tasks': stage['numTasks'],
+            'num_active_tasks': stage['numActiveTasks'],
+            'num_complete_tasks': stage['numCompleteTasks'],
+            'num_failed_tasks': stage['numFailedTasks'],
+            'num_killed_tasks': stage['numKilledTasks'],
+            'num_completed_indices': stage['numCompletedIndices'],
+            'executor_run_time': stage['executorRunTime'],
+            'executor_cpu_time': stage['executorCpuTime'],
+            'submission_time': get_prop(stage, 'submissionTime'),
+            'first_task_launched_time': get_prop(stage, 'firstTaskLaunchedTime'),
+            'completion_time': get_prop(stage, 'completionTime'),
+            'input_bytes': stage['inputBytes'],
+            'input_records': stage['inputRecords'],
+            'output_bytes': stage['outputBytes'],
+            'output_records': stage['outputRecords'],
+            'shuffle_read_bytes': stage['shuffleReadBytes'],
+            'shuffle_read_records': stage['shuffleReadRecords'],
+            'shuffle_write_bytes': stage['shuffleWriteBytes'],
+            'shuffle_write_records': stage['shuffleWriteRecords'],
+            'memory_bytes_spilled': stage['memoryBytesSpilled'],
+            'disk_bytes_spilled': stage['diskBytesSpilled'],
+            'name': stage['name'],
+            'details': stage['details'],
+            'scheduling_pool': stage['schedulingPool'],
+            'rdd_ids': stage['rddIds'],
+            'accumulator_updates': stage['accumulatorUpdates'],
+            'killed_tasks_summary': stage['killedTasksSummary']
+        }

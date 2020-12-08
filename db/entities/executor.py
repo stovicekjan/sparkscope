@@ -4,6 +4,7 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, BigInteger, Bool
 from sqlalchemy.orm import relationship
 
 from db.base import Base
+from history_fetcher.utils import get_prop
 
 
 class Executor(Base):
@@ -80,4 +81,36 @@ class Executor(Base):
         self.total_off_heap_storage_memory = attributes["total_off_heap_storage_memory"]
         self.blacklisted_in_stages = attributes["blacklisted_in_stages"]
 
-
+    @staticmethod
+    def get_fetch_dict(app_id, executor):
+        return {
+            'executor_key': f"{app_id}_{executor['id']}",
+            'app_id': app_id,
+            'id': executor['id'],
+            'host_port': executor['hostPort'],
+            'is_active': executor['isActive'],
+            'rdd_blocks': executor['rddBlocks'],
+            'memory_used': executor['memoryUsed'],
+            'disk_used': executor['diskUsed'],
+            'total_cores': executor['totalCores'],
+            'max_tasks': executor['maxTasks'],
+            'active_tasks': executor['activeTasks'],
+            'failed_tasks': executor['failedTasks'],
+            'total_duration': executor['totalDuration'],
+            'total_gc_time': executor['totalGCTime'],
+            'total_input_bytes': executor['totalInputBytes'],
+            'total_shuffle_read': executor['totalShuffleRead'],
+            'total_shuffle_write': executor['totalShuffleWrite'],
+            'is_blacklisted': executor['isBlacklisted'],
+            'max_memory': executor['maxMemory'],
+            'add_time': executor['addTime'],
+            'remove_time': get_prop(executor, 'removeTime'),
+            'remove_reason': get_prop(executor, 'removeReason'),
+            'executor_stdout_log': get_prop(executor, 'executorLogs', 'stdout'),
+            'executor_stderr_log': get_prop(executor, 'executorLogs', 'stderr'),
+            'used_on_heap_storage_memory': get_prop(executor, 'memoryMetrics', 'usedOnHeapStorageMemory'),
+            'used_off_heap_storage_memory': get_prop(executor, 'memoryMetrics', 'usedOffHeapStorageMemory'),
+            'total_on_heap_storage_memory': get_prop(executor, 'memoryMetrics', 'totalOnHeapStorageMemory'),
+            'total_off_heap_storage_memory': get_prop(executor, 'memoryMetrics', 'totalOffHeapStorageMemory'),
+            'blacklisted_in_stages': executor['blacklistedInStages']
+        }
