@@ -102,6 +102,7 @@ class DataFetcher:
             app_env_data = env_data[app['id']].result()
             app_attributes = Application.get_fetch_dict(app, app_env_data)
             self.db_session.add(Application(app_attributes))
+            self.db_session.flush()
         logger.info(f"Fetched {len(app_data)} applications.")
         return app_ids
 
@@ -122,6 +123,7 @@ class DataFetcher:
             for executor in executors_per_app.result():
                 executor_attributes = Executor.get_fetch_dict(app_id, executor)
                 self.db_session.add(Executor(executor_attributes))
+                self.db_session.flush()
 
             executor_count += len(executors_per_app.result())
         logger.info(f"Fetched {executor_count} executors.")
@@ -144,6 +146,7 @@ class DataFetcher:
                 job_attributes = Job.get_fetch_dict(app_id, job)
                 self.map_jobs_to_stages(job['stageIds'], job_attributes['job_key'], app_id)
                 self.db_session.add(Job(job_attributes))
+                self.db_session.flush()
 
             job_count += len(jobs_per_app.result())
         logger.info(f"Fetched {job_count} jobs.")
@@ -170,6 +173,7 @@ class DataFetcher:
                 stage_attributes = Stage.get_fetch_dict(app_id, stage, self.stage_job_mapping)
                 app_stage_mapping[app_id].append(stage_attributes['stage_id'])
                 self.db_session.add(Stage(stage_attributes))
+                self.db_session.flush()
 
             stage_count += len(stages_per_app.result())
         logger.info(f"Fetched {stage_count} stages.")
@@ -199,7 +203,9 @@ class DataFetcher:
             for executor_id, stage_executor_dict in executor_summary.items():
                 app_id = self.utils.get_app_id_from_stage_key(stage_key)
                 stage_executor_attributes = StageExecutor.get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict)
+                # TODO if executor_key exists in executor table, save the stage_executor as well
                 self.db_session.add(StageExecutor(stage_executor_attributes))
+                self.db_session.flush()
                 stage_executor_count += 1
         logger.info(f"Fetched {stage_executor_count} stage_executors.")
 
@@ -226,6 +232,7 @@ class DataFetcher:
             stage_stat_count += 1
             stage_statistics_attributes = StageStatistics.get_fetch_dict(stage_key, stage_statistics)
             self.db_session.add(StageStatistics(stage_statistics_attributes))
+            self.db_session.flush()
         logger.info(f"Fetched {stage_stat_count} stage statistics records.")
 
     def fetch_tasks(self, app_stage_mapping):
@@ -252,6 +259,7 @@ class DataFetcher:
             for task in tasks:
                 tasks_attributes = Task.get_fetch_dict(stage_key, task, app_id)
                 self.db_session.add(Task(tasks_attributes))
+                self.db_session.flush()
 
             task_count += len(tasks)
         logger.info(f"Fetched {task_count} tasks.")
