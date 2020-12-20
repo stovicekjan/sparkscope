@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, BigInteger, Bool
 from sqlalchemy.orm import relationship
 
 from db.base import Base
-
+from history_fetcher.utils import get_prop
 
 class StageStatistics(Base):
     """
@@ -52,35 +52,35 @@ class StageStatistics(Base):
         Create a StageStatistics object.
         :param attributes: dictionary {name: value} containing the attributes
         """
-        self.stage_key = attributes["stage_key"]
-        self.quantiles = attributes["quantiles"]
-        self.executor_deserialize_time = attributes["executor_deserialize_time"]
-        self.executor_deserialize_cpu_time = attributes["executor_deserialize_cpu_time"]
-        self.executor_run_time = attributes["executor_run_time"]
-        self.executor_cpu_time = attributes["executor_cpu_time"]
-        self.result_size = attributes["result_size"]
-        self.jvm_gc_time = attributes["jvm_gc_time"]
-        self.result_serialization_time = attributes["result_serialization_time"]
-        self.getting_result_time = attributes["getting_result_time"]
-        self.scheduler_delay = attributes["scheduler_delay"]
-        self.peak_execution_memory = attributes["peak_execution_memory"]
-        self.memory_bytes_spilled = attributes["memory_bytes_spilled"]
-        self.disk_bytes_spilled = attributes["disk_bytes_spilled"]
-        self.bytes_read = attributes["bytes_read"]
-        self.records_read = attributes["records_read"]
-        self.bytes_written = attributes["bytes_written"]
-        self.records_written = attributes["records_written"]
-        self.shuffle_read_bytes = attributes["shuffle_read_bytes"]
-        self.shuffle_read_records = attributes["shuffle_read_records"]
-        self.shuffle_remote_blocks_fetched = attributes["shuffle_remote_blocks_fetched"]
-        self.shuffle_local_blocks_fetched = attributes["shuffle_local_blocks_fetched"]
-        self.shuffle_fetch_wait_time = attributes["shuffle_fetch_wait_time"]
-        self.shuffle_remote_bytes_read = attributes["shuffle_remote_bytes_read"]
-        self.shuffle_remote_bytes_read_to_disk = attributes["shuffle_remote_bytes_read_to_disk"]
-        self.shuffle_total_blocks_fetched = attributes["shuffle_total_blocks_fetched"]
-        self.shuffle_write_bytes = attributes["shuffle_write_bytes"]
-        self.shuffle_write_records = attributes["shuffle_write_records"]
-        self.shuffle_write_time = attributes["shuffle_write_time"]
+        self.stage_key = get_prop(attributes, "stage_key")
+        self.quantiles = get_prop(attributes, "quantiles")
+        self.executor_deserialize_time = get_prop(attributes, "executor_deserialize_time")
+        self.executor_deserialize_cpu_time = get_prop(attributes, "executor_deserialize_cpu_time")
+        self.executor_run_time = get_prop(attributes, "executor_run_time")
+        self.executor_cpu_time = get_prop(attributes, "executor_cpu_time")
+        self.result_size = get_prop(attributes, "result_size")
+        self.jvm_gc_time = get_prop(attributes, "jvm_gc_time")
+        self.result_serialization_time = get_prop(attributes, "result_serialization_time")
+        self.getting_result_time = get_prop(attributes, "getting_result_time")
+        self.scheduler_delay = get_prop(attributes, "scheduler_delay")
+        self.peak_execution_memory = get_prop(attributes, "peak_execution_memory")
+        self.memory_bytes_spilled = get_prop(attributes, "memory_bytes_spilled")
+        self.disk_bytes_spilled = get_prop(attributes, "disk_bytes_spilled")
+        self.bytes_read = get_prop(attributes, "bytes_read")
+        self.records_read = get_prop(attributes, "records_read")
+        self.bytes_written = get_prop(attributes, "bytes_written")
+        self.records_written = get_prop(attributes, "records_written")
+        self.shuffle_read_bytes = get_prop(attributes, "shuffle_read_bytes")
+        self.shuffle_read_records = get_prop(attributes, "shuffle_read_records")
+        self.shuffle_remote_blocks_fetched = get_prop(attributes, "shuffle_remote_blocks_fetched")
+        self.shuffle_local_blocks_fetched = get_prop(attributes, "shuffle_local_blocks_fetched")
+        self.shuffle_fetch_wait_time = get_prop(attributes, "shuffle_fetch_wait_time")
+        self.shuffle_remote_bytes_read = get_prop(attributes, "shuffle_remote_bytes_read")
+        self.shuffle_remote_bytes_read_to_disk = get_prop(attributes, "shuffle_remote_bytes_read_to_disk")
+        self.shuffle_total_blocks_fetched = get_prop(attributes, "shuffle_total_blocks_fetched")
+        self.shuffle_write_bytes = get_prop(attributes, "shuffle_write_bytes")
+        self.shuffle_write_records = get_prop(attributes, "shuffle_write_records")
+        self.shuffle_write_time = get_prop(attributes, "shuffle_write_time")
 
     @staticmethod
     def get_fetch_dict(stage_key, stage_statistics):

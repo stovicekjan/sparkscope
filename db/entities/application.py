@@ -30,17 +30,17 @@ class Application(Base):
         Create an Application object.
         :param attributes: dictionary {name: value} containing the attributes
         """
-        self.app_id = attributes['app_id']
-        self.name = attributes['name']
-        self.start_time = attributes['start_time']
-        self.end_time = attributes['end_time']
-        self.duration = attributes['duration']
-        self.spark_user = attributes['spark_user']
-        self.completed = attributes['completed']
-        self.runtime = attributes['runtime']
-        self.spark_properties = attributes['spark_properties']
-        self.spark_command = attributes['spark_command']
-        self.mode = attributes['mode']
+        self.app_id = get_prop(attributes, 'app_id')
+        self.name = get_prop(attributes, 'name')
+        self.start_time = get_prop(attributes, 'start_time')
+        self.end_time = get_prop(attributes, 'end_time')
+        self.duration = get_prop(attributes, 'duration')
+        self.spark_user = get_prop(attributes, 'spark_user')
+        self.completed = get_prop(attributes, 'completed')
+        self.runtime = get_prop(attributes, 'runtime')
+        self.spark_properties = get_prop(attributes, 'spark_properties')
+        self.spark_command = get_prop(attributes, 'spark_command')
+        self.mode = get_prop(attributes, 'mode')
 
     @staticmethod
     def get_fetch_dict(app, app_env_data):

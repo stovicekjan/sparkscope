@@ -4,6 +4,7 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, BigInteger, Bool
 from sqlalchemy.orm import relationship
 
 from db.base import Base
+from history_fetcher.utils import get_prop
 
 
 class StageExecutor(Base):
@@ -41,25 +42,25 @@ class StageExecutor(Base):
         Create a StageExecutor object.
         :param attributes: dictionary {name: value} containing the attributes
         """
-        self.stage_executor_key = attributes["stage_executor_key"]
-        self.stage_key = attributes["stage_key"]
-        self.executor_key = attributes["executor_key"]
-        self.executor_id = attributes["executor_id"]
-        self.task_time = attributes["task_time"]
-        self.failed_tasks = attributes["failed_tasks"]
-        self.succeeded_tasks = attributes["succeeded_tasks"]
-        self.killed_tasks = attributes["killed_tasks"]
-        self.input_bytes = attributes["input_bytes"]
-        self.input_records = attributes["input_records"]
-        self.output_bytes = attributes["output_bytes"]
-        self.output_records = attributes["output_records"]
-        self.shuffle_read = attributes["shuffle_read"]
-        self.shuffle_read_records = attributes["shuffle_read_records"]
-        self.shuffle_write = attributes["shuffle_write"]
-        self.shuffle_write_records = attributes["shuffle_write_records"]
-        self.memory_bytes_spilled = attributes["memory_bytes_spilled"]
-        self.disk_bytes_spilled = attributes["disk_bytes_spilled"]
-        self.is_blacklisted_for_stage = attributes["is_blacklisted_for_stage"]
+        self.stage_executor_key = get_prop(attributes, "stage_executor_key")
+        self.stage_key = get_prop(attributes, "stage_key")
+        self.executor_key = get_prop(attributes, "executor_key")
+        self.executor_id = get_prop(attributes, "executor_id")
+        self.task_time = get_prop(attributes, "task_time")
+        self.failed_tasks = get_prop(attributes, "failed_tasks")
+        self.succeeded_tasks = get_prop(attributes, "succeeded_tasks")
+        self.killed_tasks = get_prop(attributes, "killed_tasks")
+        self.input_bytes = get_prop(attributes, "input_bytes")
+        self.input_records = get_prop(attributes, "input_records")
+        self.output_bytes = get_prop(attributes, "output_bytes")
+        self.output_records = get_prop(attributes, "output_records")
+        self.shuffle_read = get_prop(attributes, "shuffle_read")
+        self.shuffle_read_records = get_prop(attributes, "shuffle_read_records")
+        self.shuffle_write = get_prop(attributes, "shuffle_write")
+        self.shuffle_write_records = get_prop(attributes, "shuffle_write_records")
+        self.memory_bytes_spilled = get_prop(attributes, "memory_bytes_spilled")
+        self.disk_bytes_spilled = get_prop(attributes, "disk_bytes_spilled")
+        self.is_blacklisted_for_stage = get_prop(attributes, "is_blacklisted_for_stage")
 
     @staticmethod
     def get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict):

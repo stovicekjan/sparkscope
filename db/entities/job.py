@@ -4,6 +4,7 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, BigInteger, Bool
 from sqlalchemy.orm import relationship
 
 from db.base import Base
+from history_fetcher.utils import get_prop
 
 
 class Job(Base):
@@ -39,24 +40,24 @@ class Job(Base):
         Create a Job object.
         :param attributes: dictionary {name: value} containing the attributes
         """
-        self.job_key = attributes["job_key"]
-        self.app_id = attributes["app_id"]
-        self.job_id = attributes["job_id"]
-        self.submission_time = attributes["submission_time"]
-        self.completion_time = attributes["completion_time"]
-        self.status = attributes["status"]
-        self.num_tasks = attributes["num_tasks"]
-        self.num_active_tasks = attributes["num_active_tasks"]
-        self.num_completed_tasks = attributes["num_completed_tasks"]
-        self.num_skipped_tasks = attributes["num_skipped_tasks"]
-        self.num_failed_tasks = attributes["num_failed_tasks"]
-        self.num_killed_tasks = attributes["num_killed_tasks"]
-        self.num_completed_indices = attributes["num_completed_indices"]
-        self.num_active_stages = attributes["num_active_stages"]
-        self.num_completed_stages = attributes["num_completed_stages"]
-        self.num_skipped_stages = attributes["num_skipped_stages"]
-        self.num_failed_stages = attributes["num_failed_stages"]
-        self.killed_tasks_summary = attributes["killed_tasks_summary"]
+        self.job_key = get_prop(attributes, "job_key")
+        self.app_id = get_prop(attributes, "app_id")
+        self.job_id = get_prop(attributes, "job_id")
+        self.submission_time = get_prop(attributes, "submission_time")
+        self.completion_time = get_prop(attributes, "completion_time")
+        self.status = get_prop(attributes, "status")
+        self.num_tasks = get_prop(attributes, "num_tasks")
+        self.num_active_tasks = get_prop(attributes, "num_active_tasks")
+        self.num_completed_tasks = get_prop(attributes, "num_completed_tasks")
+        self.num_skipped_tasks = get_prop(attributes, "num_skipped_tasks")
+        self.num_failed_tasks = get_prop(attributes, "num_failed_tasks")
+        self.num_killed_tasks = get_prop(attributes, "num_killed_tasks")
+        self.num_completed_indices = get_prop(attributes, "num_completed_indices")
+        self.num_active_stages = get_prop(attributes, "num_active_stages")
+        self.num_completed_stages = get_prop(attributes, "num_completed_stages")
+        self.num_skipped_stages = get_prop(attributes, "num_skipped_stages")
+        self.num_failed_stages = get_prop(attributes, "num_failed_stages")
+        self.killed_tasks_summary = get_prop(attributes, "killed_tasks_summary")
 
     @staticmethod
     def get_fetch_dict(app_id, job):

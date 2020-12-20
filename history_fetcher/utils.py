@@ -55,6 +55,9 @@ def get_prop(obj, *prop_list):
     :param prop_list: list of the keys
     :return: the property value or None if the property doesn't exist
     """
+    if obj is None:
+        return None
+
     if len(prop_list) == 1:
         if prop_list[0] in obj.keys():
             return obj[prop_list[0]]

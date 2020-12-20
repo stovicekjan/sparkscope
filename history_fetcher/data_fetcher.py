@@ -199,11 +199,22 @@ class DataFetcher:
             if not stage_json:
                 continue
 
+            app_id = self.utils.get_app_id_from_stage_key(stage_key)
+            executors_per_app = self.get_executors_per_app(app_id)
             executor_summary = stage_json['executorSummary']
             for executor_id, stage_executor_dict in executor_summary.items():
-                app_id = self.utils.get_app_id_from_stage_key(stage_key)
+
                 stage_executor_attributes = StageExecutor.get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict)
-                # TODO if executor_key exists in executor table, save the stage_executor as well
+
+                # in some rare cases, in History Server, a Stage might contain an Executor which is not in the executors
+                # endpoint. If so, add the key to the Executor table to skip it to avoid DB Integrity Violation
+                # TODO this might be done more efficiently using try-catch..? -> no need to shoot multiple queries
+                executor_key = f"{app_id}_{executor_id}"
+                if executor_key not in executors_per_app:
+                    self.db_session.add(Executor({"executor_key": executor_key, "app_id": app_id}))
+                    self.db_session.flush()
+                    executors_per_app.append(executor_key)
+
                 self.db_session.add(StageExecutor(stage_executor_attributes))
                 self.db_session.flush()
                 stage_executor_count += 1
@@ -341,4 +352,8 @@ class DataFetcher:
         """
         for stage_id in stage_ids:
             self.stage_job_mapping[f"{app_id}_{stage_id}"] = job_key
+
+    def get_executors_per_app(self, app_id):
+        executors = self.db_session.query(Executor).filter_by(app_id=app_id).all()
+        return [executor.executor_key for executor in executors]
 
