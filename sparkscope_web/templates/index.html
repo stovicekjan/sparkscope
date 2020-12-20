@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "head.html" %}
+<body>
+    {% include "navigation_bar.html" %}
+    <h1>Overall Statistics</h1>
+    <div id="demochart" class="chart">
+        <script>
+            var graphs = {{chart | safe}};
+            Plotly.plot('demochart',graphs,{});
+        </script>
+    </div>
+</body>
+</html>
