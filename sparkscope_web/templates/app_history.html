@@ -2,6 +2,30 @@
 <html lang="en">
 {% include "head.html" %}
 <body>
-    {% include "navigation_bar.html" %}
+    {% with active_item='app_history' %}
+        {% include "navigation_bar.html" %}
+    {% endwith %}
+    <div class="error-container">
+        {% for field, errors in form.errors.items() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>{{ form[field].label }}: </strong>{{ ', '.join(errors) }}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="main-page-wrapper">
+        <div class="left-menu" id="">
+            <form method="POST" action="{{ url_for('app_history') }}">
+                {{ form.csrf_token }}
+                <div class="form-group">
+                    {{ form.app_id.label }}
+                    {{ form.app_id(class="form-control", placeholder="E.g. application_1234567890123_1234") }}
+                </div>
+                {{ form.history_btn(class="btn btn-primary") }}
+            </form>
+        </div>
+        <div class="all-apps-container">
+        </div>
+    </div>
 </body>
 </html>

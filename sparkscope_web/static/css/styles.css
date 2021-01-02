@@ -1,71 +1,121 @@
-body{
- background: #efeff3;
- margin: 0;
- font-family: 'Raleway', sans-serif;
- -webkit-font-smoothing: antialiased;
-  color:#212121;
-}
-.wrapper{
-  position: relative;
-  clear:both;
-  margin: 0 auto 75px auto;
-  width: 100%;
-  overflow: hidden;
-}
-.top{
-  background: #4e89ae;
-  height: 180px;
-  border-top: 20px solid #43658b;
+html {
+    height: 99.99%;
 }
 
-.top .title {
-  width: 700px;
-  margin: 38px auto 0 auto; 
+body {
+    padding-top: 50px;
+    font-family: 'Raleway', sans-serif;
+    height: 99.99%;
+    position: relative;
 }
 
-.title h1 {
-  font-size:24px;
-  color:#FFF;
-  font-weight:500;
+.left-menu {
+    background-color: #f6f6f6;
+    border: 1px solid black;
+    padding: 20px;
+    width: 350px;
+    float: left;
+    height: 100%;
+    overflow-y: auto;
 }
 
-.content{
-    margin: -80px auto 100px;
-  padding-bottom: 20px;
+.left-menu .form-group {
+    margin-bottom: 20px;
+    width: 100%;
 }
 
-.card{
-  position: relative;
-  background: #fff;
-  padding:50px;
-  width: 600px;
-  margin: 20px auto 0 auto;
-  box-shadow: 0 2px 4px rgba(100,100,100,.1);
+.left-menu .form-control {
+    width: 100%;
 }
 
-.card h2 {
-  font-size:21px;
-  font-weight:500;
+.form-group {
+    display: block;
 }
 
-.card h2 a {
-  color:#CC0000;
-  text-decoration:none;
+.subform {
+    padding-left: 7%;
+    margin-bottom: 10px;
 }
 
-.card .text {
-  color:#212121;
-  margin-top:20px;
-  font-size:15px;
-  line-height:22px;
+.navbar {
+    position: relative;
+    margin-bottom: 0px;
 }
 
-footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background-color: #43658b;
-  color: white;
-  text-align: center;
+.all-apps-container {
+    background-color: #ffffff;
+    float: left;
+    height: 100%;
+    width: auto;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 20px 0px;
+}
+
+.fixed-top {
+    position: fixed;
+}
+
+.main-page-wrapper {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.all-apps-container-head {
+    padding: 10px;
+}
+
+.app-box {
+    display: flex;
+    flex-direction: row;
+    border-top: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+    border-left: 10px solid #ff7575;
+    margin-top: -1px;
+    padding: 10px;
+    position: relative;
+}
+
+.app-box-app-id-col {
+    flex-basis: 300px;
+}
+
+.app-box-app-name-col {
+}
+
+.app-box-user-col {
+    flex-basis: 150px;
+    margin-left: auto;
+}
+
+.app-box-time-col {
+    flex-basis: 300px;
+    text-align: right;
+    margin-left: 0px;
+}
+
+.metrics-indicator-grp {
+    position: absolute;
+    bottom: 20px;
+}
+
+.metrics-indicator {
+    background-color: #ff7575;
+    padding: 10px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.error-container {
+    position: absolute;
+    top: 60px;
+    left: 360px;
+    width: 600px;
+    z-index: 999;
+}
+
+.alert {
+    width: 100%
 }

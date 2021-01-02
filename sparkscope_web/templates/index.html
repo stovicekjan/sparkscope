@@ -2,7 +2,9 @@
 <html lang="en">
 {% include "head.html" %}
 <body>
-    {% include "navigation_bar.html" %}
+    {% with active_item='dashboard' %}
+        {% include "navigation_bar.html" %}
+    {% endwith %}
     <h1>Overall Statistics</h1>
     <div id="demochart" class="chart">
         <script>
