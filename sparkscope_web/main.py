@@ -76,5 +76,10 @@ def app_history():
         pass
     return render_template('app_history.html', form=history_form)
 
+@app.route('/app/<app_id>')
+def application(app_id):
+    search_form = SearchForm()
+    return render_template('application.html', form=search_form)
+
 if __name__ == '__main__':
     app.run(debug=True)

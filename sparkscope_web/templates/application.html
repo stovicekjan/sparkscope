@@ -14,7 +14,7 @@
         {% endfor %}
     </div>
     <div class="main-page-wrapper">
-        <div class="left-menu" id="search-menu">
+        <div class="left-menu" id="">
             <form method="POST" action="{{ url_for('search') }}">
                 {{ form.csrf_token }}
                 <div class="form-group">
@@ -68,31 +68,78 @@
         </div>
         <div class="apps-container">
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
+                <ol class="breadcrumb col-1-row-1">
+                    <li class="breadcrumb-item" aria-current="page"><a href="{{ url_for('search') }}">Applications</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Applications</li>
                 </ol>
             </nav>
-            {% for app in apps %}
-            <a href="{{ url_for('application', app_id=app.app_id) }}">
-            <div class="app-box">
-                <div class="app-box-app-id-col">
-                    <a href="{{ url_for('application', app_id=app.app_id) }}">{{ app.app_id }}</a>
+            <div class="app-grid-container">
+            <div class="col-1-row-1">
+                    <h3>app_id_1234567</h3>
+                    <p>Username: john_doe</p>
+                    <div class="compare-start-end-container">
+                        <span class="compare-start-end">Start Time: 2020-12-31 12:34:56</span>
+                        <span class="compare-start-end">End Time: 2020-12-31 23:45:56</span>
+                    </div>
                 </div>
-                <div class="app-box-app-name-col">{{ app.name }}</div>
-                <div class="app-box-user-col">{{ app.spark_user }}</div>
-                <div class="app-box-time-col">
-                    <p>Start: {{ app.start_time }}</p>
-                    <p>End: {{ app.end_time }}</p>
-                    <p>Duration: {{ app.duration }} ms</p>
+                <div class="col-1-row-2">
+                    <h4>Basic Metrics</h4>
+                    <div class="card-container">
+                        {% for k in range(8) %}
+                        <div class="card card-body ">
+                            <div class="basic-metric-name">Metric name</div>
+                            <div class="basic-metric-value">Metric value</div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="metrics-indicator-grp">
-                    {% for i in range(3) %}
-                    <span class="metrics-indicator">Dummy</span>
+                <div class="col-1-row-3">
+                    <h4>Issues</h4>
+                    {% for j in range(3) %}
+                    <div class="issue-container">
+                        <div class="metrics-indicator">Dummy</div>
+                        <div class="metrics-description">
+                            <p>A detailed description of the issue</p>
+                            <p>Sometimes, multiple lines are needed</p>
+                            <p>Or even more lines</p>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
+                <div class="col-1-row-4">
+                <h4>Key Configuration Items</h4>
+                    <div class="card-container">
+                        <div class="card card-body">
+                            <div class="basic-metric-name">Memory</div>
+                            <div class="basic-metric-value">Driver Memory: X GB</div>
+                            <div class="basic-metric-value">Driver Memory Overhead: X GB</div>
+                            <div class="basic-metric-value">Executor Memory: X GB</div>
+                            <div class="basic-metric-value">Evecutor Memory Overhead: X GB</div>
+                        </div>
+                        <div class="card card-body">
+                            <div class="basic-metric-name">Others</div>
+                            <div class="basic-metric-value">Number Of Executors: X</div>
+                            <div class="basic-metric-value">Cores Per Executor: X</div>
+                            <div class="basic-metric-value">Dynamic allocation: X</div>
+                            <div class="basic-metric-value">Driver max result size: X GB</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-1-row-5">
+                    <h4>All Configuration Items (<a data-toggle="collapse" data-target=".multi-collapse" href="">Expand/Collapse</a>)</h4>
+                    <div class="collapse multi-collapse show">
+                        <div class="card card-body">
+                            <div>aa</div>
+                            <div>bb</div>
+                            <div>cc</div>
+                            <div>dd</div>
+                            <div>ee</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
         </div>
+
     </div>
 </body>
 </html>
