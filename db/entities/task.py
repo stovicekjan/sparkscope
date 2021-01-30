@@ -27,6 +27,7 @@ class Task(Base):
     executor = relationship("Executor")
     host = Column(String)
     status = Column(String)
+    error_message = Column(String)
     task_locality = Column(String)
     speculative = Column(Boolean)
     accumulator_updates = Column(ARRAY(String))
@@ -70,6 +71,7 @@ class Task(Base):
         self.executor_key = get_prop(attributes, 'executor_key')
         self.host = get_prop(attributes, 'host')
         self.status = get_prop(attributes, 'status')
+        self.error_message = get_prop(attributes, 'error_message')
         self.task_locality = get_prop(attributes, 'task_locality')
         self.speculative = get_prop(attributes, 'speculative')
         self.accumulator_updates = get_prop(attributes, 'accumulator_updates')
@@ -111,6 +113,7 @@ class Task(Base):
             'executor_key': f"{app_id}_{task['executorId']}",
             'host': task['host'],
             'status': task['status'],
+            'error_message': get_prop(task, 'errorMessage'),
             'task_locality': task['taskLocality'],
             'speculative': task['speculative'],
             'accumulator_updates': task['accumulatorUpdates'],

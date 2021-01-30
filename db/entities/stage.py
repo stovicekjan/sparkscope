@@ -35,6 +35,7 @@ class Stage(Base):
     submission_time = Column(DateTime)
     first_task_launched_time = Column(DateTime)
     completion_time = Column(DateTime)
+    failure_reason = Column(String)
     input_bytes = Column(BigInteger)
     input_records = Column(BigInteger)
     output_bytes = Column(BigInteger)
@@ -74,6 +75,7 @@ class Stage(Base):
         self.submission_time = get_prop(attributes, "submission_time")
         self.first_task_launched_time = get_prop(attributes, "first_task_launched_time")
         self.completion_time = get_prop(attributes, "completion_time")
+        self.failure_reason = get_prop(attributes, "failure_reason")
         self.input_bytes = get_prop(attributes, "input_bytes")
         self.input_records = get_prop(attributes, "input_records")
         self.output_bytes = get_prop(attributes, "output_bytes")
@@ -111,6 +113,7 @@ class Stage(Base):
             'submission_time': get_prop(stage, 'submissionTime'),
             'first_task_launched_time': get_prop(stage, 'firstTaskLaunchedTime'),
             'completion_time': get_prop(stage, 'completionTime'),
+            'failure_reason': get_prop(stage, 'failureReason'),
             'input_bytes': stage['inputBytes'],
             'input_records': stage['inputRecords'],
             'output_bytes': stage['outputBytes'],
