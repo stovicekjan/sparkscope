@@ -1,0 +1,25 @@
+
+# This file is used by pip to install required python packages
+# Usage: pip install -r requirements.txt
+
+certifi==2018.1.18
+configparser==3.5.0
+decorator==4.4.2
+Flask==1.1.2
+Flask-WTF==0.14.2
+Jinja2==2.11.2
+jsonschema==2.6.0
+ldap3==2.8.1
+matplotlib==3.0.3
+networkx==2.5
+numpy==1.19.5
+pandas==1.1.5
+ply==3.11
+psycopg2==2.8.6
+py==1.8.0
+pytest==4.4.1
+requests==2.18.4
+SQLAlchemy==1.2.4
+urllib3==1.22
+Werkzeug==1.0.1
+WTForms==2.3.3
