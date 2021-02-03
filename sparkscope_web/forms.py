@@ -27,7 +27,6 @@ class AbstractForm(FlaskForm):
         return True
 
 
-
 class SearchForm(AbstractForm):
     fmt = '%Y-%m-%dT%H:%M'
     app_name = StringField("Application Name", validators=[Optional(strip_whitespace=True), Regexp(regex='^[a-zA-Z0-9\-_]*$', message="Only letters, numbers, _ or - allowed.")])
@@ -45,20 +44,26 @@ class SearchForm(AbstractForm):
         rv = FlaskForm.validate(self)
         if not rv:
             return False
-
         # validate the dates (from < to)
         if self.start_from.data and self.start_to.data:
             if self.start_from.data > self.start_to.data:
                 self.start_time.errors.append(f"Invalid From/To datetimes: '{self.start_from.label.text}' should be before '{self.start_to.label.text}'")
                 return False
-
         if self.end_from.data and self.end_to.data:
             if self.end_from.data > self.end_to.data:
                 self.end_time.errors.append(f"Invalid From/To datetimes: '{self.end_from.label.text}' should be before '{self.end_to.label.text}'")
                 return False
-
         return True
 
+    def apply_filters(self, query):
+        query = query.filter(Application.name.like(f"%{self.app_name.data}%")) \
+                     .filter(Application.app_id.like(f"%{self.app_id.data}%")) \
+                     .filter(Application.spark_user.like(f"%{self.username.data}%"))
+        query = query.filter(Application.start_time >= self.start_from.data) if self.start_from.data else query
+        query = query.filter(Application.start_time <= self.start_to.data) if self.start_to.data else query
+        query = query.filter(Application.end_time >= self.end_from.data) if self.end_from.data else query
+        query = query.filter(Application.end_time <= self.end_to.data) if self.end_to.data else query
+        return query
 
 class CompareForm(AbstractForm):
     app_id_1 = StringField("Application ID 1", validators=[DataRequired()])

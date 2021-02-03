@@ -1,0 +1,7 @@
+[stage_skew]
+# Minimum runtime (in milliseconds) of the stages which should be included
+min_runtime=30000  # milliseconds
+
+# Values of maximum/median task runtime ratio, used as limits for LOW or HIGH severity
+ratio_low=2.0
+ratio_high=10.0

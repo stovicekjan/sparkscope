@@ -1,10 +1,10 @@
+from db.entities.job import Job
 from sparkscope_web.analyzers.analyzer import Analyzer
-from db.entities.stage import Stage
-from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric
+from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, JobFailureMetric
 from sparkscope_web.metrics.severity import Severity
 
 
-class StageAnalyzer(Analyzer):
+class JobAnalyzer(Analyzer):
     def __init__(self):
         super().__init__()
 
@@ -15,21 +15,20 @@ class StageAnalyzer(Analyzer):
         :return: Metric details
         """
 
-        stages = self.db.query(Stage).filter(Stage.app_id == app.app_id)
-        all_stages_count = stages.count()
-        if all_stages_count == 0:
+        jobs = self.db.query(Job).filter(Job.app_id == app.app_id)
+        all_jobs_count = jobs.count()
+        if all_jobs_count == 0:
             return EmptyMetric(severity=Severity.NONE)
-        failed_stages = stages.filter(Stage.status.in_(["FAILED", "KILLED"]))
-        failed_stages_count = failed_stages.count()
+        failed_jobs = jobs.filter(Job.status.in_(["FAILED", "KILLED"]))
+        failed_jobs_count = failed_jobs.count()
 
-        if failed_stages_count > 0:
+        if failed_jobs_count > 0:
             severity = Severity.HIGH
-            overall_info = f"{failed_stages_count}/{all_stages_count} stages failed"
-            print(overall_info)
+            overall_info = f"{failed_jobs_count}/{all_jobs_count} jobs failed"
             details = []
-            for fs in failed_stages.all():
-                details.append(f"Stage {fs.stage_id} {fs.status}: {fs.failure_reason}")
-            return StageFailureMetric(severity, overall_info, details)
+            for fj in failed_jobs.all():
+                details.append(f"Job {fj.job_id} {fj.status}")
+            return JobFailureMetric(severity, overall_info, details)
         else:
             return EmptyMetric(severity=Severity.NONE)
 

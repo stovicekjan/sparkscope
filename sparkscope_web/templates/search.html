@@ -74,7 +74,7 @@
             </nav>
             {% for app in apps %}
             <a href="{{ url_for('application', app_id=app.app_id) }}">
-            <div class="app-box">
+            <div class="app-box" style="border-left-color: {{ app.overall_severity.color() }}">
                 <div class="app-box-app-id-col">
                     <a href="{{ url_for('application', app_id=app.app_id) }}">{{ app.app_id }}</a>
                 </div>
@@ -86,8 +86,11 @@
                     <p>Duration: {{ app.duration }} ms</p>
                 </div>
                 <div class="metrics-indicator-grp">
-                    {% for i in range(3) %}
-                    <span class="metrics-indicator">Dummy</span>
+                    {% for metric, severity in app.metrics_overview.items() %}
+                    <span class="metrics-indicator"
+                          title="{{ metric.overall_info}}"
+                          style="background-color: {{ metric.severity.color() }}">
+                        {{ metric.title }}</span>
                     {% endfor %}
                 </div>
             </div>
