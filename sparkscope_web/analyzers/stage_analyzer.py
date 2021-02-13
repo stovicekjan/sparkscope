@@ -14,44 +14,62 @@ from sparkscope_web.metrics.severity import Severity
 class StageAnalyzer(Analyzer):
     def __init__(self, app):
         super().__init__()
-        self.stages = self.db.query(Stage).filter(Stage.app_id == app.app_id)
-        self.stages_with_statistics = self.stages.join(StageStatistics)
+        self.stages = self.db.query(Stage.status,
+                                    Stage.stage_id,
+                                    Stage.stage_key,
+                                    Stage.failure_reason,
+                                    Stage.executor_run_time,
+                                    Stage.memory_bytes_spilled,
+                                    Stage.disk_bytes_spilled,
+                                    Stage.input_bytes,
+                                    Stage.output_bytes,
+                                    Stage.shuffle_read_bytes,
+                                    Stage.shuffle_write_bytes,
+                                    StageStatistics.executor_run_time.label("ss_executor_run_time"),
+                                    StageStatistics.bytes_read.label("ss_bytes_read"),
+                                    StageStatistics.bytes_written.label("ss_bytes_written"),
+                                    StageStatistics.shuffle_read_bytes.label("ss_shuffle_read_bytes"),
+                                    StageStatistics.shuffle_write_bytes.label("ss_shuffle_write_bytes"))\
+                             .filter(Stage.stage_key == StageStatistics.stage_key,
+                                     Stage.app_id == app.app_id)\
+                             .all()
 
     def analyze_failed_stages(self):
         """
         Analyze the Stages of the defined apps and return the metric details
         :return: Metric details
         """
-
-        all_stages_count = self.stages.count()
+        all_stages_count = len(self.stages)
         if all_stages_count == 0:
             return EmptyMetric(severity=Severity.NONE)
-        failed_stages = self.stages.filter(Stage.status.in_(["FAILED", "KILLED"]))
-        failed_stages_count = failed_stages.count()
+        failed_stages = [s for s in self.stages if s.status in ["FAILED", "KILLED"]]
+        failed_stages_count = len(failed_stages)
 
         if failed_stages_count > 0:
             severity = Severity.HIGH
             overall_info = f"{failed_stages_count}/{all_stages_count} stages failed"
-            details = []
-            for fs in failed_stages.all():
-                details.append(f"Stage {fs.stage_id} {fs.status}: {fs.failure_reason}")
+            details = {}
+            for fs in failed_stages:
+                details[fs.stage_id] = (f"Stage {fs.stage_id} {fs.status}: {fs.failure_reason}", "")
+
             return StageFailureMetric(severity, overall_info, details)
         else:
             return EmptyMetric(severity=Severity.NONE)
 
     def analyze_stage_skews(self):
         # filter only relevant stages (don't bother with five-second stages, focus on the large ones)
-        relevant_stages = self.stages.filter(Stage.executor_run_time > STAGE_SKEW_MIN_RUNTIME_MILLIS)
+        relevant_stages = [s for s in self.stages if s.executor_run_time > STAGE_SKEW_MIN_RUNTIME_MILLIS]
 
         severity = Severity.NONE  # just an initialization; will be updated
         details = {}  # the details can be sorted by (max - median) difference, which might represent potential time loss
-        for stage in relevant_stages.all():
+        for stage in relevant_stages:
             idx = [2, 4]  # indexes for median and maximum
-            runtime_med, runtime_max = [stage.stage_statistics.executor_run_time[i]/1000 for i in idx]  # milliseconds!
-            bytes_read_med, bytes_read_max = [stage.stage_statistics.bytes_read[i] for i in idx]
-            bytes_written_med, bytes_written_max = [stage.stage_statistics.bytes_written[i] for i in idx]
-            shuffle_read_bytes_med, shuffle_read_bytes_max = [stage.stage_statistics.shuffle_read_bytes[i] for i in idx]
-            shuffle_write_bytes_med, shuffle_write_bytes_max = [stage.stage_statistics.shuffle_write_bytes[i] for i in idx]
+            runtime_med, runtime_max = [stage.ss_executor_run_time[i]/1000 for i in idx]  # milliseconds!
+            bytes_read_med, bytes_read_max = [stage.ss_bytes_read[i] for i in idx]
+            bytes_written_med, bytes_written_max = [stage.ss_bytes_written[i] for i in idx]
+            shuffle_read_bytes_med, shuffle_read_bytes_max = [stage.ss_shuffle_read_bytes[i] for i in idx]
+            shuffle_write_bytes_med, shuffle_write_bytes_max = [stage.ss_shuffle_write_bytes[i] for i in idx]
+            id = stage.stage_id
 
             # severity should be calculated from runtime skew
             if runtime_med == 0:  # check division by 0
@@ -63,12 +81,12 @@ class StageAnalyzer(Analyzer):
                 severity = stage_severity
 
             if stage_severity > Severity.NONE:
-                details[f"Stage {stage.stage_id}: Executor runtime {runtime_max} s (max), {runtime_med} s (median)"
+                details[id] = (f"Stage {stage.stage_id}: Executor runtime {runtime_max} s (max), {runtime_med} s (median)"
                         f"Read {bytes_read_max} B (max), {bytes_read_med} B (median)"
                         f"Wrote {bytes_written_max} B (max), {bytes_written_med} B (median))"
                         f"Shuffle read {shuffle_read_bytes_max} B (max), {shuffle_read_bytes_med} B (median)"
-                        f"Shuffle write {shuffle_write_bytes_max} B (max), {shuffle_write_bytes_max} B (median)"] = \
-                        runtime_max - runtime_med
+                        f"Shuffle write {shuffle_write_bytes_max} B (max), {shuffle_write_bytes_max} B (median)",
+                        runtime_max - runtime_med)
         #         TODO think about some better data structure for storing the details
 
         # TODO sort the details by (runtime_max - runtime_med) and display some limited number of such stages (5?)
@@ -82,7 +100,7 @@ class StageAnalyzer(Analyzer):
 
     def analyze_disk_spills(self):
         # filter only relevant stages (with non-zero spill)
-        relevant_stages = self.stages.filter(Stage.memory_bytes_spilled > 0)
+        relevant_stages = [s for s in self.stages if s.memory_bytes_spilled > 0]
 
         severity = Severity.NONE
         details = {}  # the details can be sortable by amount of spilled data per stage
@@ -90,7 +108,7 @@ class StageAnalyzer(Analyzer):
         total_bytes_spilled = 0
         stages_count = 0
 
-        for stage in relevant_stages.all():
+        for stage in relevant_stages:
             memory_bytes_spilled = stage.memory_bytes_spilled
             disk_bytes_spilled = stage.disk_bytes_spilled
             input_bytes = stage.input_bytes
@@ -116,11 +134,9 @@ class StageAnalyzer(Analyzer):
                 severity = stage_severity
 
             if stage_severity > Severity.NONE:
-                details[id] = (f"Stage {id} spilled {memory_bytes_spilled} bytes ({disk_bytes_spilled} on disk)."
-                               f"Input: {input_bytes} B, output: {output_bytes} B. "
-                               f"Shuffle read: {shuffle_read_bytes} B, shuffle write: {shuffle_write_bytes} B."
-                               f"Biggest contributor: task {worst_task.task_id}, {memory_bytes_spilled_by_worst_task} B spilled ({disk_bytes_spilled_by_worst_task} on disk).",
+                details[id] = (f"Stage {id} spilled {memory_bytes_spilled} bytes ({disk_bytes_spilled} B on disk).\n\t- Input: {input_bytes} B, output: {output_bytes} B. \n\t- Shuffle read: {shuffle_read_bytes} B, shuffle write: {shuffle_write_bytes} B. \n\t- Biggest contributor: task {worst_task.task_id}, {memory_bytes_spilled_by_worst_task} B spilled ({disk_bytes_spilled_by_worst_task} B on disk). \n",
                                memory_bytes_spilled)
+        #     TODO improve the string formatting (perhaps use more separate strings instead), so that HTML can display it on multiple lines
 
         if len(details) == 0:
             return EmptyMetric(severity=Severity.NONE)

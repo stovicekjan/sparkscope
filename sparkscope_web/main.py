@@ -1,7 +1,5 @@
 from flask import Flask, render_template, jsonify, request
 
-
-
 from db.base import Session, engine, Base
 from db.entities.application import Application
 from db.entities.executor import Executor
@@ -65,10 +63,17 @@ def app_history():
         pass
     return render_template('app_history.html', form=history_form)
 
+
 @app.route('/app/<app_id>')
 def application(app_id):
     search_form = SearchForm()
-    return render_template('application.html', form=search_form)
+    one_app = session.query(Application).get(app_id)
+    basic_metrics = one_app.get_basic_metrics()
+    return render_template('application.html',
+                           form=search_form,
+                           app=one_app,
+                           basic_metrics=basic_metrics)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

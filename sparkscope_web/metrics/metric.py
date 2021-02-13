@@ -72,3 +72,27 @@ class JobFailureMetric(Metric):
         """
         super().__init__(severity, overall_info, details)
         self.title = "Failed Jobs"
+
+
+class DriverGcTimeMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create DriverGcTimeMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (Driver spends too much/low time with GC + how much)
+        :param details: detailed info (empty dict so far)
+        """
+        super().__init__(severity, overall_info, details)
+        self.title = "Driver GC Time"
+
+
+class ExecutorGcTimeMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create ExecutorGcTimeMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (Executors spend too much/low time with GC + how much)
+        :param details: detailed info (empty dict so far)
+        """
+        super().__init__(severity, overall_info, details)
+        self.title = "Executors GC Time"
