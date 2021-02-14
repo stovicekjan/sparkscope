@@ -102,9 +102,19 @@
                         </div>
                         <div class="metrics-description">
                             <p>{{ metric.overall_info}}</p>
-                            {% for m, d in metric.details.items() %}
-                            <p>{{ d[0] }}</p>
-                            {% endfor %}
+                            <ul>
+                                {% for d in metric.details.get_short_list(-1) %}
+                                <li>
+                                    <p>{{ d.detail_string }}</p>
+                                    <ul>
+                                        {% for sd in d.subdetails %}
+                                        <li>{{ sd }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
                         </div>
                     </div>
                     {% endfor %}

@@ -9,6 +9,7 @@ from db.entities.stage import StageEntity
 from sparkscope_web.metrics.helpers import size_in_bytes, fmt_time
 from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, StageSkewMetric, StageDiskSpillMetric, \
     DriverGcTimeMetric, ExecutorGcTimeMetric
+from sparkscope_web.metrics.metric_details import MetricDetailsList
 from sparkscope_web.metrics.metrics_constants import SPARK_RESERVED_MEMORY, DEFAULT_EXECUTOR_MEMORY, \
     EXECUTOR_MEMORY_WASTAGE_THRESHOLDS, EXECUTOR_MEMORY_CONFIG_KEY, DRIVER_TOO_LOW_GC_THRESHOLDS, \
     DRIVER_TOO_HIGH_GC_THRESHOLDS, EXECUTOR_TOO_LOW_GC_THRESHOLDS, EXECUTOR_TOO_HIGH_GC_THRESHOLDS
@@ -64,13 +65,13 @@ class ExecutorAnalyzer(Analyzer):
             overall_info = f"Driver spent too low time with Garbage Collection: " \
                            f"{fmt_time(self.driver.total_gc_time/1000)} out of " \
                            f"{fmt_time(self.driver.total_duration/1000)} ({(ratio*100):.2f} %)"
-            details = {}
+            details = MetricDetailsList(ascending=True)
             severity = severity_low
         elif severity_low < severity_high:
             overall_info = f"Driver spent too much time with Garbage Collection: " \
                            f"{fmt_time(self.driver.total_gc_time/1000)} out of " \
                            f"{fmt_time(self.driver.total_duration/1000)} ({(ratio*100):.2f} %)"
-            details = {}
+            details = MetricDetailsList(ascending=True)
             severity = severity_high
         else:
             return EmptyMetric(severity=Severity.NONE)
@@ -94,13 +95,13 @@ class ExecutorAnalyzer(Analyzer):
 
         if severity_low > severity_high:
             overall_info = f"Executors spent too low time with Garbage Collection: {fmt_time(total_gc_time/1000)} " \
-                           f"out of {fmt_time(total_duration/1000)} ({(ratio*100):.2f} %)"
-            details = {}
+                           f"/ {fmt_time(total_duration/1000)} ({(ratio*100):.2f} %)"
+            details = MetricDetailsList(ascending=True)
             severity = severity_low
         elif severity_low < severity_high:
             overall_info = f"Executors spent too much time with Garbage Collection: {fmt_time(total_gc_time/1000)} " \
-                           f"out of {fmt_time(total_duration/1000)} ({(ratio*100):.2f} %)"
-            details = {}
+                           f"/ {fmt_time(total_duration/1000)} ({(ratio*100):.2f} %)"
+            details = MetricDetailsList(ascending=True)
             severity = severity_high
         else:
             return EmptyMetric(severity=Severity.NONE)

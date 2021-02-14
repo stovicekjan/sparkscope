@@ -7,6 +7,7 @@ from sparkscope_web.analyzers.analyzer import Analyzer
 from db.entities.stage import StageEntity
 from sparkscope_web.metrics.helpers import fmt_bytes, fmt_time
 from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, StageSkewMetric, StageDiskSpillMetric
+from sparkscope_web.metrics.metric_details import MetricDetailsList, MetricDetails
 from sparkscope_web.metrics.metrics_constants import STAGE_SKEW_MIN_RUNTIME_MILLIS, STAGE_SKEW_THRESHOLDS, \
     STAGE_DISK_SPILL_THRESHOLDS
 from sparkscope_web.metrics.severity import Severity
@@ -51,9 +52,11 @@ class StageAnalyzer(Analyzer):
         if failed_stages_count > 0:
             severity = Severity.HIGH
             overall_info = f"{failed_stages_count}/{all_stages_count} stages failed"
-            details = {}
+            details = MetricDetailsList(ascending=True)
             for fs in failed_stages:
-                details[fs.stage_id] = (f"Stage {fs.stage_id} {fs.status}: {fs.failure_reason}", "")
+                details.add(MetricDetails(entity_id=fs.stage_id,
+                                          detail_string=f"Stage {fs.stage_id} {fs.status}",
+                                          subdetails=[fs.failure_reason]))
 
             return StageFailureMetric(severity, overall_info, details)
         else:
@@ -64,7 +67,7 @@ class StageAnalyzer(Analyzer):
         relevant_stages = [s for s in self.stages if s.executor_run_time > STAGE_SKEW_MIN_RUNTIME_MILLIS]
 
         severity = Severity.NONE  # just an initialization; will be updated
-        details = {}  # the details can be sorted by (max - median) difference, which might represent potential time loss
+        details = MetricDetailsList(ascending=True)
         for stage in relevant_stages:
             idx = [2, 4]  # indexes for median and maximum
             runtime_med, runtime_max = [stage.ss_executor_run_time[i]/1000 for i in idx]  # seconds
@@ -85,21 +88,18 @@ class StageAnalyzer(Analyzer):
                 severity = stage_severity
 
             if stage_severity > Severity.NONE:
-                details[id] = (f"Stage {stage.stage_id}: Total runtime {fmt_time(total_runtime)}, Executor runtime {fmt_time(runtime_max)} (max), {fmt_time(runtime_med)} (median)"
-                        f"Read {fmt_bytes(bytes_read_max)} (max), {fmt_bytes(bytes_read_med)} (median)"
-                        f"Wrote {fmt_bytes(bytes_written_max)} (max), {fmt_bytes(bytes_written_med)} (median)"
-                        f"Shuffle read {fmt_bytes(shuffle_read_bytes_max)} (max), {fmt_bytes(shuffle_read_bytes_med)} (median)"
-                        f"Shuffle write {fmt_bytes(shuffle_write_bytes_max)} (max), {fmt_bytes(shuffle_write_bytes_max)} (median)",
-                        runtime_max - runtime_med)
-        #         TODO think about some better data structure for storing the details
+                details.add(MetricDetails(entity_id=id,
+                                          detail_string=f"Stage {stage.stage_id}: Total runtime {fmt_time(total_runtime)}, Executor runtime {fmt_time(runtime_max)} (max), {fmt_time(runtime_med)} (median)",
+                                          sort_attr=runtime_max - runtime_med, # the details can be sorted by (max - median) difference, which might represent potential time loss
+                                          subdetails=[f"Read {fmt_bytes(bytes_read_max)} (max), {fmt_bytes(bytes_read_med)} (median)",
+                                                      f"Wrote {fmt_bytes(bytes_written_max)} (max), {fmt_bytes(bytes_written_med)} (median)",
+                                                      f"Shuffle read {fmt_bytes(shuffle_read_bytes_max)} (max), {fmt_bytes(shuffle_read_bytes_med)} (median)",
+                                                      f"Shuffle write {fmt_bytes(shuffle_write_bytes_max)} (max), {fmt_bytes(shuffle_write_bytes_max)} (median)"]))
 
-        # TODO sort the details by (runtime_max - runtime_med) and display some limited number of such stages (5?)
-        # TODO also, some generic method for getting the details could help
-
-        if len(details) == 0:  # no stages with significant severity
+        if details.length() == 0:  # no stages with significant severity
             return EmptyMetric(severity=Severity.NONE)
         else:
-            overall_info = f"{len(details)} stages with significant skew found"
+            overall_info = f"{details.length()} stages with significant skew found"
             return StageSkewMetric(severity=severity, overall_info=overall_info, details=details)
 
     def analyze_disk_spills(self):
@@ -107,7 +107,7 @@ class StageAnalyzer(Analyzer):
         relevant_stages = [s for s in self.stages if s.memory_bytes_spilled > 0]
 
         severity = Severity.NONE
-        details = {}  # the details can be sortable by amount of spilled data per stage
+        details = MetricDetailsList(ascending=True)  # the details can be sortable by amount of spilled data per stage
 
         total_bytes_spilled = 0
         stages_count = 0
@@ -138,11 +138,15 @@ class StageAnalyzer(Analyzer):
                 severity = stage_severity
 
             if stage_severity > Severity.NONE:
-                details[id] = (f"Stage {id} spilled {fmt_bytes(memory_bytes_spilled)} ({fmt_bytes(disk_bytes_spilled)} on disk).\n\t- Input: {fmt_bytes(input_bytes)}, output: {fmt_bytes(output_bytes)}. \n\t- Shuffle read: {fmt_bytes(shuffle_read_bytes)}, shuffle write: {fmt_bytes(shuffle_write_bytes)}. \n\t- Biggest contributor: task {worst_task.task_id}, {fmt_bytes(memory_bytes_spilled_by_worst_task)} spilled ({fmt_bytes(disk_bytes_spilled_by_worst_task)} on disk). \n",
-                               memory_bytes_spilled)
-        #     TODO improve the string formatting (perhaps use more separate strings instead), so that HTML can display it on multiple lines
+                details.add(MetricDetails(entity_id=id,
+                                          detail_string=f"Stage {id} spilled {fmt_bytes(memory_bytes_spilled)} ({fmt_bytes(disk_bytes_spilled)} on disk).",
+                                          sort_attr=memory_bytes_spilled,
+                                          subdetails=[f"Input: {fmt_bytes(input_bytes)}, output: {fmt_bytes(output_bytes)}.",
+                                                      f"Shuffle read: {fmt_bytes(shuffle_read_bytes)}, shuffle write: {fmt_bytes(shuffle_write_bytes)}.",
+                                                      f"Biggest contributor: task {worst_task.task_id}, {fmt_bytes(memory_bytes_spilled_by_worst_task)} spilled ({fmt_bytes(disk_bytes_spilled_by_worst_task)} on disk)."]
+                                          ))
 
-        if len(details) == 0:
+        if details.length() == 0:
             return EmptyMetric(severity=Severity.NONE)
         else:
             overall_info = f"{fmt_bytes(total_bytes_spilled)} spilled in {stages_count} stages."
