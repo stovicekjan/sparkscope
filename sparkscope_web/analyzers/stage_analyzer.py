@@ -30,9 +30,11 @@ class StageAnalyzer(Analyzer):
                                     StageStatisticsEntity.bytes_read.label("ss_bytes_read"),
                                     StageStatisticsEntity.bytes_written.label("ss_bytes_written"),
                                     StageStatisticsEntity.shuffle_read_bytes.label("ss_shuffle_read_bytes"),
-                                    StageStatisticsEntity.shuffle_write_bytes.label("ss_shuffle_write_bytes"))\
-                             .filter(StageEntity.stage_key == StageStatisticsEntity.stage_key,
-                                     StageEntity.app_id == app.app_id)\
+                                    StageStatisticsEntity.shuffle_write_bytes.label("ss_shuffle_write_bytes")) \
+                             .filter(StageEntity.app_id == app.app_id)\
+                             .join(StageStatisticsEntity,
+                                   StageEntity.stage_key == StageStatisticsEntity.stage_key,
+                                   isouter=True)\
                              .all()
 
     def analyze_failed_stages(self):
