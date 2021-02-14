@@ -9,7 +9,7 @@ import sparkscope_web.metrics.thresholds as thresholds
 # from db.entities.stage import Stage
 # from db.entities.stage_statistics import StageStatistics
 # from db.entities.task import Task
-from db.entities.stage import Stage
+from db.entities.stage import StageEntity
 
 
 class Analyzer:

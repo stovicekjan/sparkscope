@@ -1,4 +1,4 @@
-from db.entities.job import Job
+from db.entities.job import JobEntity
 from sparkscope_web.analyzers.analyzer import Analyzer
 from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, JobFailureMetric
 from sparkscope_web.metrics.severity import Severity
@@ -8,8 +8,8 @@ class JobAnalyzer(Analyzer):
     def __init__(self, app):
         super().__init__()
         self.app = app
-        self.jobs = self.db.query(Job.job_id, Job.status)\
-                        .filter(Job.app_id == self.app.app_id)\
+        self.jobs = self.db.query(JobEntity.job_id, JobEntity.status)\
+                        .filter(JobEntity.app_id == self.app.app_id)\
                         .all()
 
     def analyze_failed_jobs(self):

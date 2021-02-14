@@ -7,7 +7,7 @@ from db.base import Base
 from history_fetcher.utils import get_prop
 
 
-class StageExecutor(Base):
+class StageExecutorEntity(Base):
     """
     A class used to represent stage_executor entity in the database (a usage of Executors within a Stage).
 
@@ -16,8 +16,8 @@ class StageExecutor(Base):
     __tablename__ = 'stage_executor'
 
     stage_executor_key = Column(String, primary_key=True)
-    stage = relationship("Stage")
-    executor = relationship("Executor")
+    stage = relationship("StageEntity")
+    executor = relationship("ExecutorEntity")
     stage_key = Column(String, ForeignKey("stage.stage_key"))
     executor_key = Column(String, ForeignKey("executor.executor_key"))
     executor_id = Column(String)

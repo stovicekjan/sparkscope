@@ -1,10 +1,10 @@
 from sqlalchemy import desc
 from sqlalchemy.sql import func
 
-from db.entities.stage_statistics import StageStatistics
-from db.entities.task import Task
+from db.entities.stage_statistics import StageStatisticsEntity
+from db.entities.task import TaskEntity
 from sparkscope_web.analyzers.analyzer import Analyzer
-from db.entities.stage import Stage
+from db.entities.stage import StageEntity
 from sparkscope_web.metrics.helpers import fmt_bytes, fmt_time
 from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, StageSkewMetric, StageDiskSpillMetric
 from sparkscope_web.metrics.metrics_constants import STAGE_SKEW_MIN_RUNTIME_MILLIS, STAGE_SKEW_THRESHOLDS, \
@@ -15,24 +15,24 @@ from sparkscope_web.metrics.severity import Severity
 class StageAnalyzer(Analyzer):
     def __init__(self, app):
         super().__init__()
-        self.stages = self.db.query(Stage.status,
-                                    Stage.stage_id,
-                                    Stage.stage_key,
-                                    Stage.failure_reason,
-                                    Stage.executor_run_time,
-                                    Stage.memory_bytes_spilled,
-                                    Stage.disk_bytes_spilled,
-                                    Stage.input_bytes,
-                                    Stage.output_bytes,
-                                    Stage.shuffle_read_bytes,
-                                    Stage.shuffle_write_bytes,
-                                    StageStatistics.executor_run_time.label("ss_executor_run_time"),
-                                    StageStatistics.bytes_read.label("ss_bytes_read"),
-                                    StageStatistics.bytes_written.label("ss_bytes_written"),
-                                    StageStatistics.shuffle_read_bytes.label("ss_shuffle_read_bytes"),
-                                    StageStatistics.shuffle_write_bytes.label("ss_shuffle_write_bytes"))\
-                             .filter(Stage.stage_key == StageStatistics.stage_key,
-                                     Stage.app_id == app.app_id)\
+        self.stages = self.db.query(StageEntity.status,
+                                    StageEntity.stage_id,
+                                    StageEntity.stage_key,
+                                    StageEntity.failure_reason,
+                                    StageEntity.executor_run_time,
+                                    StageEntity.memory_bytes_spilled,
+                                    StageEntity.disk_bytes_spilled,
+                                    StageEntity.input_bytes,
+                                    StageEntity.output_bytes,
+                                    StageEntity.shuffle_read_bytes,
+                                    StageEntity.shuffle_write_bytes,
+                                    StageStatisticsEntity.executor_run_time.label("ss_executor_run_time"),
+                                    StageStatisticsEntity.bytes_read.label("ss_bytes_read"),
+                                    StageStatisticsEntity.bytes_written.label("ss_bytes_written"),
+                                    StageStatisticsEntity.shuffle_read_bytes.label("ss_shuffle_read_bytes"),
+                                    StageStatisticsEntity.shuffle_write_bytes.label("ss_shuffle_write_bytes"))\
+                             .filter(StageEntity.stage_key == StageStatisticsEntity.stage_key,
+                                     StageEntity.app_id == app.app_id)\
                              .all()
 
     def analyze_failed_stages(self):
@@ -121,8 +121,8 @@ class StageAnalyzer(Analyzer):
             id = stage.stage_id
 
             # also find which tasks is the most responsible for the spill
-            worst_task = self.db.query(Task).filter(Task.stage_key == stage_key)\
-                .order_by(desc(Task.memory_bytes_spilled)).first()
+            worst_task = self.db.query(TaskEntity).filter(TaskEntity.stage_key == stage_key)\
+                .order_by(desc(TaskEntity.memory_bytes_spilled)).first()
             memory_bytes_spilled_by_worst_task = worst_task.memory_bytes_spilled
             disk_bytes_spilled_by_worst_task = worst_task.disk_bytes_spilled
 

@@ -1,12 +1,12 @@
 from flask import Flask, render_template, jsonify, request
 
 from db.base import Session, engine, Base
-from db.entities.application import Application
-from db.entities.executor import Executor
-from db.entities.job import Job
-from db.entities.stage import Stage
-from db.entities.stage_statistics import StageStatistics
-from db.entities.task import Task
+from db.entities.application import ApplicationEntity
+from db.entities.executor import ExecutorEntity
+from db.entities.job import JobEntity
+from db.entities.stage import StageEntity
+from db.entities.stage_statistics import StageStatisticsEntity
+from db.entities.task import TaskEntity
 from sparkscope_web.analyzers.stage_analyzer import StageAnalyzer
 from sparkscope_web.config import Config
 from sparkscope_web.graphs import BarChartCreator
@@ -26,12 +26,12 @@ session = Session()
 @app.route('/')
 def home():
     all_counts = [
-        {'entity': 'applications', 'count': session.query(Application).count()},
-        {'entity': 'executors', 'count': session.query(Executor).count()},
-        {'entity': 'jobs', 'count': session.query(Job).count()},
-        {'entity': 'stage', 'count': session.query(Stage).count()},
-        {'entity': 'stage_statistics', 'count': session.query(StageStatistics).count()},
-        {'entity': 'tasks', 'count': session.query(Task).count()},
+        {'entity': 'applications', 'count': session.query(ApplicationEntity).count()},
+        {'entity': 'executors', 'count': session.query(ExecutorEntity).count()},
+        {'entity': 'jobs', 'count': session.query(JobEntity).count()},
+        {'entity': 'stage', 'count': session.query(StageEntity).count()},
+        {'entity': 'stage_statistics', 'count': session.query(StageStatisticsEntity).count()},
+        {'entity': 'tasks', 'count': session.query(TaskEntity).count()},
     ]
     bcc = BarChartCreator()
     bar_chart = bcc.create_chart(all_counts, 'entity', 'count')
@@ -41,7 +41,7 @@ def home():
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     search_form = SearchForm()
-    apps = session.query(Application).order_by(Application.start_time.desc())
+    apps = session.query(ApplicationEntity).order_by(ApplicationEntity.start_time.desc())
     if request.method == "POST" and search_form.validate_on_submit():
         apps = search_form.apply_filters(apps)
     apps = apps.limit(50)
@@ -67,7 +67,7 @@ def app_history():
 @app.route('/app/<app_id>')
 def application(app_id):
     search_form = SearchForm()
-    one_app = session.query(Application).get(app_id)
+    one_app = session.query(ApplicationEntity).get(app_id)
     basic_metrics = one_app.get_basic_metrics()
     return render_template('application.html',
                            form=search_form,

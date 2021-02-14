@@ -7,7 +7,7 @@ from db.base import Base
 from history_fetcher.utils import get_prop
 
 
-class Executor(Base):
+class ExecutorEntity(Base):
     """
     A class used to represent the Executor entity in the database.
 
@@ -16,7 +16,7 @@ class Executor(Base):
     __tablename__ = 'executor'
 
     executor_key = Column(String, primary_key=True)
-    app = relationship("Application")
+    app = relationship("ApplicationEntity")
     app_id = Column(String, ForeignKey('application.app_id'))
     id = Column(String)
     host_port = Column(String)

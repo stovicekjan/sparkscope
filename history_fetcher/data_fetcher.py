@@ -10,14 +10,14 @@ import os
 import time
 from sqlalchemy import func
 
-from db.entities.application import Application
+from db.entities.application import ApplicationEntity
 
-from db.entities.executor import Executor
-from db.entities.job import Job
-from db.entities.stage import Stage
-from db.entities.stage_statistics import StageStatistics
-from db.entities.stage_executor import StageExecutor
-from db.entities.task import Task
+from db.entities.executor import ExecutorEntity
+from db.entities.job import JobEntity
+from db.entities.stage import StageEntity
+from db.entities.stage_statistics import StageStatisticsEntity
+from db.entities.stage_executor import StageExecutorEntity
+from db.entities.task import TaskEntity
 from history_fetcher import utils
 from history_fetcher.utils import Utils
 
@@ -100,8 +100,8 @@ class DataFetcher:
         for app in app_data:
             app_ids.append(app['id'])
             app_env_data = env_data[app['id']].result()
-            app_attributes = Application.get_fetch_dict(app, app_env_data)
-            self.db_session.add(Application(app_attributes))
+            app_attributes = ApplicationEntity.get_fetch_dict(app, app_env_data)
+            self.db_session.add(ApplicationEntity(app_attributes))
             self.db_session.flush()
         logger.info(f"Fetched {len(app_data)} applications.")
         return app_ids
@@ -121,8 +121,8 @@ class DataFetcher:
                 continue
 
             for executor in executors_per_app.result():
-                executor_attributes = Executor.get_fetch_dict(app_id, executor)
-                self.db_session.add(Executor(executor_attributes))
+                executor_attributes = ExecutorEntity.get_fetch_dict(app_id, executor)
+                self.db_session.add(ExecutorEntity(executor_attributes))
                 self.db_session.flush()
 
             executor_count += len(executors_per_app.result())
@@ -143,9 +143,9 @@ class DataFetcher:
                 continue
 
             for job in jobs_per_app.result():
-                job_attributes = Job.get_fetch_dict(app_id, job)
+                job_attributes = JobEntity.get_fetch_dict(app_id, job)
                 self.map_jobs_to_stages(job['stageIds'], job_attributes['job_key'], app_id)
-                self.db_session.add(Job(job_attributes))
+                self.db_session.add(JobEntity(job_attributes))
                 self.db_session.flush()
 
             job_count += len(jobs_per_app.result())
@@ -170,9 +170,9 @@ class DataFetcher:
             app_stage_mapping[app_id] = []
 
             for stage in stages_per_app.result():
-                stage_attributes = Stage.get_fetch_dict(app_id, stage, self.stage_job_mapping)
+                stage_attributes = StageEntity.get_fetch_dict(app_id, stage, self.stage_job_mapping)
                 app_stage_mapping[app_id].append(stage_attributes['stage_id'])
-                self.db_session.add(Stage(stage_attributes))
+                self.db_session.add(StageEntity(stage_attributes))
                 self.db_session.flush()
 
             stage_count += len(stages_per_app.result())
@@ -204,18 +204,18 @@ class DataFetcher:
             executor_summary = stage_json['executorSummary']
             for executor_id, stage_executor_dict in executor_summary.items():
 
-                stage_executor_attributes = StageExecutor.get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict)
+                stage_executor_attributes = StageExecutorEntity.get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict)
 
                 # in some rare cases, in History Server, a Stage might contain an Executor which is not in the executors
                 # endpoint. If so, add the key to the Executor table to skip it to avoid DB Integrity Violation
                 # TODO this might be done more efficiently using try-catch..? -> no need to shoot multiple queries
                 executor_key = f"{app_id}_{executor_id}"
                 if executor_key not in executors_per_app:
-                    self.db_session.add(Executor({"executor_key": executor_key, "app_id": app_id}))
+                    self.db_session.add(ExecutorEntity({"executor_key": executor_key, "app_id": app_id}))
                     self.db_session.flush()
                     executors_per_app.append(executor_key)
 
-                self.db_session.add(StageExecutor(stage_executor_attributes))
+                self.db_session.add(StageExecutorEntity(stage_executor_attributes))
                 self.db_session.flush()
                 stage_executor_count += 1
         logger.info(f"Fetched {stage_executor_count} stage_executors.")
@@ -241,8 +241,8 @@ class DataFetcher:
                 continue
 
             stage_stat_count += 1
-            stage_statistics_attributes = StageStatistics.get_fetch_dict(stage_key, stage_statistics)
-            self.db_session.add(StageStatistics(stage_statistics_attributes))
+            stage_statistics_attributes = StageStatisticsEntity.get_fetch_dict(stage_key, stage_statistics)
+            self.db_session.add(StageStatisticsEntity(stage_statistics_attributes))
             self.db_session.flush()
         logger.info(f"Fetched {stage_stat_count} stage statistics records.")
 
@@ -268,8 +268,8 @@ class DataFetcher:
             app_id = self.utils.get_app_id_from_stage_key(stage_key)
 
             for task in tasks:
-                tasks_attributes = Task.get_fetch_dict(stage_key, task, app_id)
-                self.db_session.add(Task(tasks_attributes))
+                tasks_attributes = TaskEntity.get_fetch_dict(stage_key, task, app_id)
+                self.db_session.add(TaskEntity(tasks_attributes))
                 self.db_session.flush()
 
             task_count += len(tasks)
@@ -334,7 +334,7 @@ class DataFetcher:
         Used as a delta-logic criterion.
         :return: timestamp in format 2020-01-01T01:01:01.123GMT
         """
-        max_date = self.db_session.query(func.max(Application.end_time))[0][0]
+        max_date = self.db_session.query(func.max(ApplicationEntity.end_time))[0][0]
         if max_date is None:
             max_date = datetime.datetime(1970, 1, 1, 0, 0, 0, 0)
         fmt = "%Y-%m-%dT%H:%M:%S.%f"  # example: 2020-10-23T12:34:56.012345
@@ -354,6 +354,6 @@ class DataFetcher:
             self.stage_job_mapping[f"{app_id}_{stage_id}"] = job_key
 
     def get_executors_per_app(self, app_id):
-        executors = self.db_session.query(Executor).filter_by(app_id=app_id).all()
+        executors = self.db_session.query(ExecutorEntity).filter_by(app_id=app_id).all()
         return [executor.executor_key for executor in executors]
 

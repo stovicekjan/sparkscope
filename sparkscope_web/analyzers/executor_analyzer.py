@@ -1,11 +1,11 @@
 from sqlalchemy import desc
 from sqlalchemy.sql import func
 
-from db.entities.executor import Executor
-from db.entities.stage_statistics import StageStatistics
-from db.entities.task import Task
+from db.entities.executor import ExecutorEntity
+from db.entities.stage_statistics import StageStatisticsEntity
+from db.entities.task import TaskEntity
 from sparkscope_web.analyzers.analyzer import Analyzer
-from db.entities.stage import Stage
+from db.entities.stage import StageEntity
 from sparkscope_web.metrics.helpers import size_in_bytes, fmt_time
 from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, StageSkewMetric, StageDiskSpillMetric, \
     DriverGcTimeMetric, ExecutorGcTimeMetric
@@ -19,14 +19,14 @@ class ExecutorAnalyzer(Analyzer):
     def __init__(self, app):
         super().__init__()
         self.app = app
-        self.executors = self.db.query(Executor) \
-                                .filter(Executor.app_id == app.app_id,
-                                        Executor.id != "driver",
-                                        Executor.id is not None)\
+        self.executors = self.db.query(ExecutorEntity) \
+                                .filter(ExecutorEntity.app_id == app.app_id,
+                                        ExecutorEntity.id != "driver",
+                                        ExecutorEntity.id is not None)\
                                 .all()
-        self.driver = self.db.query(Executor) \
-                             .filter(Executor.app_id == app.app_id,
-                                     Executor.id == "driver") \
+        self.driver = self.db.query(ExecutorEntity) \
+                             .filter(ExecutorEntity.app_id == app.app_id,
+                                     ExecutorEntity.id == "driver") \
                              .first()
 
     def analyze_executor_memory_wastage(self):

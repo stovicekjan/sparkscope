@@ -7,7 +7,7 @@ from db.base import Base
 from history_fetcher.utils import get_prop
 
 
-class Stage(Base):
+class StageEntity(Base):
     """
     A class used to represent the Stage entity in the database.
 
@@ -16,13 +16,13 @@ class Stage(Base):
     __tablename__ = 'stage'
 
     stage_key = Column(String, primary_key=True)
-    app = relationship("Application")
+    app = relationship("ApplicationEntity")
     app_id = Column(String, ForeignKey('application.app_id'))
-    stage_statistics = relationship("StageStatistics", uselist=False, back_populates="stage")
+    stage_statistics = relationship("StageStatisticsEntity", uselist=False, back_populates="stage")
     status = Column(String)
     stage_id = Column(Integer)
     attempt_id = Column(Integer)
-    job = relationship("Job")
+    job = relationship("JobEntity")
     job_key = Column(String, ForeignKey('job.job_key'))
     num_tasks = Column(Integer)
     num_active_tasks = Column(Integer)

@@ -7,7 +7,7 @@ from db.base import Base
 from history_fetcher.utils import get_prop
 
 
-class Job(Base):
+class JobEntity(Base):
     """
     A class used to represent the Job entity in the database.
 
@@ -16,7 +16,7 @@ class Job(Base):
     __tablename__ = 'job'
 
     job_key = Column(String, primary_key=True)
-    app = relationship("Application")
+    app = relationship("ApplicationEntity")
     app_id = Column(String, ForeignKey('application.app_id'))
     job_id = Column(String)
     submission_time = Column(DateTime)

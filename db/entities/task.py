@@ -7,7 +7,7 @@ from db.base import Base
 from history_fetcher.utils import get_prop
 
 
-class Task(Base):
+class TaskEntity(Base):
     """
     A class used to represent the Task entity in the database.
 
@@ -17,14 +17,14 @@ class Task(Base):
 
     task_key = Column(String, primary_key=True)
     stage_key = Column(String, ForeignKey('stage.stage_key'))
-    stage = relationship("Stage")
+    stage = relationship("StageEntity")
     task_id = Column(Integer)
     index = Column(Integer)
     attempt = Column(Integer)
     launch_time = Column(DateTime)
     duration = Column(BigInteger)
     executor_key = Column(String, ForeignKey('executor.executor_key'))
-    executor = relationship("Executor")
+    executor = relationship("ExecutorEntity")
     host = Column(String)
     status = Column(String)
     error_message = Column(String)

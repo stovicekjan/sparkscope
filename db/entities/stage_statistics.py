@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from db.base import Base
 from history_fetcher.utils import get_prop
 
-class StageStatistics(Base):
+class StageStatisticsEntity(Base):
     """
     A class used to represent the stage_statistics entity in the database.
 
@@ -17,7 +17,7 @@ class StageStatistics(Base):
     __tablename__ = 'stage_statistics'
 
     stage_key = Column(String, ForeignKey('stage.stage_key'), primary_key=True)
-    stage = relationship("Stage", back_populates="stage_statistics")
+    stage = relationship("StageEntity", back_populates="stage_statistics")
     quantiles = Column(ARRAY(Float))
     executor_deserialize_time = Column(ARRAY(Float))
     executor_deserialize_cpu_time = Column(ARRAY(Float))

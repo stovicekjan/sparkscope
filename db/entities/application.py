@@ -2,10 +2,10 @@
 
 from sqlalchemy import Column, String, DateTime, BigInteger, Boolean, JSON, orm, func
 from db.base import Base, Session
-from db.entities.executor import Executor
-from db.entities.job import Job
-from db.entities.stage import Stage
-from db.entities.task import Task
+from db.entities.executor import ExecutorEntity
+from db.entities.job import JobEntity
+from db.entities.stage import StageEntity
+from db.entities.task import TaskEntity
 from history_fetcher.utils import get_prop, get_system_property
 from sparkscope_web.analyzers.executor_analyzer import ExecutorAnalyzer
 from sparkscope_web.analyzers.job_analyzer import JobAnalyzer
@@ -14,7 +14,7 @@ from sparkscope_web.metrics.severity import Severity
 from sparkscope_web.metrics.helpers import fmt_time, fmt_bytes, cast_or_none
 
 
-class Application(Base):
+class ApplicationEntity(Base):
     """
     A class used to represent the Application entity in the database.
 
@@ -145,19 +145,19 @@ class Application(Base):
         db = Session()
         basic_metrics = {}
         runtime = self.duration/1000.0  # seconds
-        cpu_time = cast_or_none(db.query(func.sum(Stage.executor_cpu_time) / 1.0e9)
-                         .filter(Stage.app_id == self.app_id).scalar(), float)  # seconds
+        cpu_time = cast_or_none(db.query(func.sum(StageEntity.executor_cpu_time) / 1.0e9)
+                                .filter(StageEntity.app_id == self.app_id).scalar(), float)  # seconds
 
-        total_gc_time = cast_or_none(db.query(func.sum(Executor.total_gc_time) / 1.0e3)
-                              .filter(Executor.app_id == self.app_id).scalar(), float)  # seconds
+        total_gc_time = cast_or_none(db.query(func.sum(ExecutorEntity.total_gc_time) / 1.0e3)
+                                     .filter(ExecutorEntity.app_id == self.app_id).scalar(), float)  # seconds
 
         basic_metrics["Runtime"] = fmt_time(runtime)  # seconds
         basic_metrics["CPU Time"] = fmt_time(cpu_time)  # seconds
         basic_metrics["Total Tasks Time"] = "dummy"
         basic_metrics["Executor Peak Memory"] = "dummy"
-        basic_metrics["Jobs Number"] = db.query(func.count(Job.job_id)).filter(Job.app_id == self.app_id).scalar()
-        basic_metrics["Stages Number"] = db.query(func.count(Stage.stage_id)).filter(Stage.app_id == self.app_id).scalar()
-        basic_metrics["Tasks Number"] = cast_or_none(db.query(func.sum(Stage.num_tasks)).filter(Stage.app_id == self.app_id).scalar(), int)
+        basic_metrics["Jobs Number"] = db.query(func.count(JobEntity.job_id)).filter(JobEntity.app_id == self.app_id).scalar()
+        basic_metrics["Stages Number"] = db.query(func.count(StageEntity.stage_id)).filter(StageEntity.app_id == self.app_id).scalar()
+        basic_metrics["Tasks Number"] = cast_or_none(db.query(func.sum(StageEntity.num_tasks)).filter(StageEntity.app_id == self.app_id).scalar(), int)
         basic_metrics["Total GC Time"] = fmt_time(total_gc_time)  # seconds
 
         return basic_metrics

@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, DateTimeField, SubmitField, HiddenField, ValidationError
 from wtforms.fields.html5 import DateTimeLocalField
 from wtforms.validators import Regexp, Optional, DataRequired
-from db.entities.application import Application
+from db.entities.application import ApplicationEntity
 
 
 class AbstractForm(FlaskForm):
@@ -56,13 +56,13 @@ class SearchForm(AbstractForm):
         return True
 
     def apply_filters(self, query):
-        query = query.filter(Application.name.like(f"%{self.app_name.data}%")) \
-                     .filter(Application.app_id.like(f"%{self.app_id.data}%")) \
-                     .filter(Application.spark_user.like(f"%{self.username.data}%"))
-        query = query.filter(Application.start_time >= self.start_from.data) if self.start_from.data else query
-        query = query.filter(Application.start_time <= self.start_to.data) if self.start_to.data else query
-        query = query.filter(Application.end_time >= self.end_from.data) if self.end_from.data else query
-        query = query.filter(Application.end_time <= self.end_to.data) if self.end_to.data else query
+        query = query.filter(ApplicationEntity.name.like(f"%{self.app_name.data}%")) \
+                     .filter(ApplicationEntity.app_id.like(f"%{self.app_id.data}%")) \
+                     .filter(ApplicationEntity.spark_user.like(f"%{self.username.data}%"))
+        query = query.filter(ApplicationEntity.start_time >= self.start_from.data) if self.start_from.data else query
+        query = query.filter(ApplicationEntity.start_time <= self.start_to.data) if self.start_to.data else query
+        query = query.filter(ApplicationEntity.end_time >= self.end_from.data) if self.end_from.data else query
+        query = query.filter(ApplicationEntity.end_time <= self.end_to.data) if self.end_to.data else query
         return query
 
 class CompareForm(AbstractForm):
@@ -74,7 +74,7 @@ class CompareForm(AbstractForm):
         rv = FlaskForm.validate(self)
         if not rv \
                 or self.is_identical(self.app_id_1, self.app_id_2) \
-                or not self.all_exist(Application, [self.app_id_1, self.app_id_2]):
+                or not self.all_exist(ApplicationEntity, [self.app_id_1, self.app_id_2]):
             return False
         return True
 
@@ -85,6 +85,6 @@ class HistoryForm(AbstractForm):
 
     def validate(self):
         rv = FlaskForm.validate(self)
-        if not rv or not self.all_exist(Application, [self.app_id]):
+        if not rv or not self.all_exist(ApplicationEntity, [self.app_id]):
             return False
         return True
