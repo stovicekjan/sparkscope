@@ -61,6 +61,8 @@ class Application(Base):
         self.driver_gc_time_metric = {}
         self.executor_gc_time_metric = {}
 
+        self.duration_formatted = fmt_time(self.duration/1000)
+
         # this dict should serve as an overview of metrics with severity >= LOW
         self.metrics_overview = {}  # key: metric, value: severity
 
@@ -102,6 +104,8 @@ class Application(Base):
                 if len(self.metrics_overview) > 0 else Severity.NONE
 
             self.is_processed = True
+
+            self.duration_formatted = fmt_time(self.duration/1000)
 
     def compute_stage_metrics(self):
         stage_analyzer = StageAnalyzer(self)

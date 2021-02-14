@@ -78,8 +78,8 @@
                     <h3>{{ app.app_id }} ({{ app.name }})</h3>
                     <p>Username: {{ app.spark_user }}</p>
                     <div class="compare-start-end-container">
-                        <span class="compare-start-end">Start Time: {{ app.start_time }}</span>
-                        <span class="compare-start-end">End Time: {{ app.end_time }}</span>
+                        <span class="compare-start-end">Start Time: {{ app.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
+                        <span class="compare-start-end">End Time: {{ app.end_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
                     </div>
                 </div>
                 <div class="col-1-row-2">

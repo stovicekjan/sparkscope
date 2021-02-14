@@ -81,16 +81,17 @@
                 <div class="app-box-app-name-col">{{ app.name }}</div>
                 <div class="app-box-user-col">{{ app.spark_user }}</div>
                 <div class="app-box-time-col">
-                    <p>Start: {{ app.start_time }}</p>
-                    <p>End: {{ app.end_time }}</p>
-                    <p>Duration: {{ app.duration }} ms</p>
+                    <p>Start: {{ app.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</p>
+                    <p>End: {{ app.end_time.strftime("%Y-%m-%d %H:%M:%S") }}</p>
+                    <p>Duration: {{ app.duration_formatted }}</p>
                 </div>
                 <div class="metrics-indicator-grp">
                     {% for metric, severity in app.metrics_overview.items() %}
                     <span class="metrics-indicator"
                           title="{{ metric.overall_info}}"
                           style="background-color: {{ metric.severity.color() }}">
-                        {{ metric.title }}</span>
+                        {{ metric.title }}
+                    </span>
                     {% endfor %}
                 </div>
             </div>

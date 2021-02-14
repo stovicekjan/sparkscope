@@ -19,7 +19,9 @@ def fmt_time(value):
     if not isinstance(value, int) and not isinstance(value, float):
         raise TypeError(f"Expected int or float in TimeDuration, got {type(value)}")
 
-    if value < 60:
+    if 0 < value < 0.1:
+        return f"{value:.3f} s"
+    elif value < 60:
         if isinstance(value, int):
             return f"{value} s"
         else:
@@ -27,7 +29,7 @@ def fmt_time(value):
     elif value < 3600:
         return f"{value//60:.0f} m {value%60:.0f} s"
     else:
-        return f"{value//3600:.0f} h {value//60:.0f} m {value%60:.0f} s"
+        return f"{value//3600:.0f} h {(value%3600)//60:.0f} m {value%60:.0f} s"
 
 
 def fmt_bytes(value):
