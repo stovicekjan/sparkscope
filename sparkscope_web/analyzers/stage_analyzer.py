@@ -69,6 +69,9 @@ class StageAnalyzer(Analyzer):
         severity = Severity.NONE  # just an initialization; will be updated
         details = MetricDetailsList(ascending=True)
         for stage in relevant_stages:
+            if stage.ss_executor_run_time is None:  # sometimes the stage statistics data are not available
+                return EmptyMetric(severity=Severity.NONE)
+
             idx = [2, 4]  # indexes for median and maximum
             runtime_med, runtime_max = [stage.ss_executor_run_time[i]/1000 for i in idx]  # seconds
             bytes_read_med, bytes_read_max = [stage.ss_bytes_read[i] for i in idx]
