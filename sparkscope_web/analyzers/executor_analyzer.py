@@ -11,8 +11,9 @@ from sparkscope_web.metrics.metric import StageFailureMetric, EmptyMetric, Stage
     DriverGcTimeMetric, ExecutorGcTimeMetric
 from sparkscope_web.metrics.metric_details import MetricDetailsList
 from sparkscope_web.metrics.metrics_constants import SPARK_RESERVED_MEMORY, DEFAULT_EXECUTOR_MEMORY, \
-    EXECUTOR_MEMORY_WASTAGE_THRESHOLDS, EXECUTOR_MEMORY_CONFIG_KEY, DRIVER_TOO_LOW_GC_THRESHOLDS, \
+    EXECUTOR_MEMORY_WASTAGE_THRESHOLDS, DRIVER_TOO_LOW_GC_THRESHOLDS, \
     DRIVER_TOO_HIGH_GC_THRESHOLDS, EXECUTOR_TOO_LOW_GC_THRESHOLDS, EXECUTOR_TOO_HIGH_GC_THRESHOLDS
+from sparkscope_web.constants import EXECUTOR_MEMORY_KEY
 from sparkscope_web.metrics.severity import Severity
 
 
@@ -39,7 +40,7 @@ class ExecutorAnalyzer(Analyzer):
         severity = Severity.NONE
         details = {}
 
-        allocated_executor_memory = self.app.get_spark_property(EXECUTOR_MEMORY_CONFIG_KEY)
+        allocated_executor_memory = self.app.get_spark_property(EXECUTOR_MEMORY_KEY)
         allocated_executor_memory_bytes = size_in_bytes(allocated_executor_memory, default=DEFAULT_EXECUTOR_MEMORY)
 
         # TODO Currently, this analysis/metric cannot work with Spark History Server (on SHS, peak execution
@@ -47,7 +48,7 @@ class ExecutorAnalyzer(Analyzer):
         # TODO Maybe there could be a way how to retrieve the peak memory usage data from event logs.
         max_memory_usage_per_executor = 0
 
-        ratio = allocated_executor_memory_bytes / (max_memory_usage_per_executor + EXECUTOR_MEMORY_CONFIG_KEY)
+        ratio = allocated_executor_memory_bytes / (max_memory_usage_per_executor + EXECUTOR_MEMORY_KEY)
         severity = EXECUTOR_MEMORY_WASTAGE_THRESHOLDS.severity_of(ratio)
 
         return EmptyMetric(severity=Severity.NONE)

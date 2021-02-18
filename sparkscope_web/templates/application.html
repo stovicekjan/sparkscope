@@ -142,11 +142,9 @@
                     <h4>All Configuration Items (<a data-toggle="collapse" data-target=".multi-collapse" href="">Expand/Collapse</a>)</h4>
                     <div class="collapse multi-collapse show">
                         <div class="card card-body">
-                            <div>aa</div>
-                            <div>bb</div>
-                            <div>cc</div>
-                            <div>dd</div>
-                            <div>ee</div>
+                            {% for key, val in all_configs_json.items() %}
+                            <div>{{ key }}: {{ val }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

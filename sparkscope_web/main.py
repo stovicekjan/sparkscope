@@ -67,12 +67,14 @@ def app_history():
 @app.route('/app/<app_id>')
 def application(app_id):
     search_form = SearchForm()
-    one_app = session.query(ApplicationEntity).get(app_id)
-    basic_metrics = one_app.get_basic_metrics()
+    spark_app = session.query(ApplicationEntity).get(app_id)
+    basic_metrics = spark_app.get_basic_metrics()
+    all_configs_json = dict(spark_app.spark_properties)
     return render_template('application.html',
                            form=search_form,
-                           app=one_app,
-                           basic_metrics=basic_metrics)
+                           app=spark_app,
+                           basic_metrics=basic_metrics,
+                           all_configs_json=all_configs_json)
 
 
 if __name__ == '__main__':

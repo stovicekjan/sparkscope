@@ -46,7 +46,6 @@ EXECUTOR_MEMORY_WASTAGE_THRESHOLDS = Thresholds(EXECUTOR_MEMORY_RATIO_LOW, EXECU
 
 SPARK_RESERVED_MEMORY = 300 << 20  # 300 MB expressed in bytes
 DEFAULT_EXECUTOR_MEMORY = 1 << 30  # 1 GB expressed in bytes
-EXECUTOR_MEMORY_CONFIG_KEY = "spark.executor.memory"
 
 
 # ========== driver GC metric configuration ==========
