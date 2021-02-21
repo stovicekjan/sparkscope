@@ -95,6 +95,7 @@ body {
 .metrics-indicator-grp {
     position: absolute;
     bottom: 20px;
+    display: flex;
 }
 
 .metrics-indicator {
@@ -103,8 +104,9 @@ body {
     color: #ffffff;
     font-weight: bold;
     text-align: center;
-    width: 200px;
+    flex: 0 0 150px;
     display: inline;
+    margin: 0px 5px;
 }
 
 .error-container {
@@ -138,6 +140,10 @@ body {
     flex-wrap: wrap;
 }
 
+.card {
+    flex: 1;
+}
+
 .card-4-cols {
     flex-basis: 25%;
 }
@@ -160,6 +166,7 @@ body {
 .metrics-description {
     padding: 10px;
     margin-left: 30px;
+    flex: 1;
 }
 
 .compare-grid-container, .app-grid-container {
