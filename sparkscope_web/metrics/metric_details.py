@@ -29,9 +29,7 @@ class MetricDetailsList:
         :param length: Number of items that should be retrieved, -1 for all of them
         :return: list of most important MetricDetails or None
         """
-        def get_sort_attr(elem):
-            return elem.sort_attr
-        sorted_list = sorted(self._details_list, key=get_sort_attr, reverse=self.ascending)
+        sorted_list = sorted(self._details_list, key=lambda md: md.sort_attr, reverse=self.ascending)
         if length == -1 or length >= len(sorted_list):
             return sorted_list
         elif length < len(sorted_list):
