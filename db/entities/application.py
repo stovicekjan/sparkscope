@@ -12,6 +12,9 @@ from sparkscope_web.analyzers.job_analyzer import JobAnalyzer
 from sparkscope_web.analyzers.stage_analyzer import StageAnalyzer
 from sparkscope_web.metrics.severity import Severity
 from sparkscope_web.metrics.helpers import fmt_time, fmt_bytes, cast_or_none
+from sparkscope_web.constants import DRIVER_MEMORY_KEY, DRIVER_MEMORY_OVERHEAD_KEY, EXECUTOR_MEMORY_KEY, \
+    EXECUTOR_MEMORY_OVERHEAD_KEY, DRIVER_MAX_RESULT_SIZE_KEY, EXECUTOR_CORES_KEY, EXECUTOR_INSTANCES_KEY, \
+    DYNAMIC_ALLOCATION_KEY
 
 
 class ApplicationEntity(Base):
@@ -161,6 +164,12 @@ class ApplicationEntity(Base):
         basic_metrics["Total GC Time"] = fmt_time(total_gc_time)  # seconds
 
         return basic_metrics
+
+    def get_basic_configs(self):
+        mem_props = [DRIVER_MEMORY_KEY, DRIVER_MEMORY_OVERHEAD_KEY, EXECUTOR_MEMORY_KEY, EXECUTOR_MEMORY_OVERHEAD_KEY]
+        other_props = [DRIVER_MAX_RESULT_SIZE_KEY, EXECUTOR_INSTANCES_KEY, EXECUTOR_CORES_KEY, DYNAMIC_ALLOCATION_KEY]
+        return {"memory": {prop: self.get_spark_property(prop) for prop in mem_props},
+                "other": {prop: self.get_spark_property(prop) for prop in other_props}}
 
     def get_spark_property(self, property_name):
         """

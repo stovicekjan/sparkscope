@@ -124,17 +124,15 @@
                     <div class="card-container">
                         <div class="card card-body">
                             <div class="basic-metric-name">Memory</div>
-                            <div class="basic-metric-value">Driver Memory: X GB</div>
-                            <div class="basic-metric-value">Driver Memory Overhead: X GB</div>
-                            <div class="basic-metric-value">Executor Memory: X GB</div>
-                            <div class="basic-metric-value">Evecutor Memory Overhead: X GB</div>
+                            {% for key, val in basic_configs['memory'].items() %}
+                            <div class="basic-metric-value">{{ key }}: {{ val }}</div>
+                            {% endfor %}
                         </div>
                         <div class="card card-body">
                             <div class="basic-metric-name">Others</div>
-                            <div class="basic-metric-value">Number Of Executors: X</div>
-                            <div class="basic-metric-value">Cores Per Executor: X</div>
-                            <div class="basic-metric-value">Dynamic allocation: X</div>
-                            <div class="basic-metric-value">Driver max result size: X GB</div>
+                            {% for key, val in basic_configs['other'].items() %}
+                            <div class="basic-metric-value">{{ key }}: {{ val }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
