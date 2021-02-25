@@ -52,7 +52,25 @@ def search():
 def compare():
     compare_form = CompareForm(session=session)
     if request.method == "POST" and compare_form.validate_on_submit():
-        pass
+        spark_app_1 = session.query(ApplicationEntity).get(compare_form.app_id_1.data)
+        spark_app_2 = session.query(ApplicationEntity).get(compare_form.app_id_2.data)
+        basic_metrics_1 = spark_app_1.get_basic_metrics()
+        basic_metrics_2 = spark_app_2.get_basic_metrics()
+        basic_configs_1 = spark_app_1.get_basic_configs()
+        basic_configs_2 = spark_app_2.get_basic_configs()
+        all_configs_json_1 = dict(spark_app_1.spark_properties)
+        all_configs_json_2 = dict(spark_app_2.spark_properties)
+        return render_template('compare.html',
+                               form=compare_form,
+                               spark_app_1=spark_app_1,
+                               spark_app_2=spark_app_2,
+                               basic_metrics_1=basic_metrics_1,
+                               basic_metrics_2=basic_metrics_2,
+                               basic_configs_1=basic_configs_1,
+                               basic_configs_2=basic_configs_2,
+                               all_configs_json_1=all_configs_json_1,
+                               all_configs_json_2=all_configs_json_2,
+                               )
     return render_template('compare.html', form=compare_form)
 
 
