@@ -8,3 +8,5 @@ DRIVER_MAX_RESULT_SIZE_KEY = "spark.driver.maxResultSize"
 EXECUTOR_CORES_KEY = "spark.executor.cores"
 DYNAMIC_ALLOCATION_KEY = "spark.dynamicAllocation.enabled"
 EXECUTOR_INSTANCES_KEY = "spark.executor.instances"
+
+SERIALIZER_KEY = "spark.serializer"

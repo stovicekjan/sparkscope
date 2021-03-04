@@ -96,3 +96,16 @@ class ExecutorGcTimeMetric(Metric):
         """
         super().__init__(severity, overall_info, details)
         self.title = "Executors GC Time"
+
+
+class SerializerConfigMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create SerializerConfigMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (which serializer was used and which one should have
+        been used)
+        :param details: detailed info (empty dict so far)
+        """
+        super().__init__(severity, overall_info, details)
+        self.title = "Serializer"

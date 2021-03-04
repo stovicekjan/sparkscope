@@ -86,3 +86,8 @@ EXECUTOR_TOO_LOW_GC_THRESHOLDS = Thresholds(EXECUTOR_TOO_LOW_GC_RATIO_LOW, EXECU
                                             ascending=False)
 EXECUTOR_TOO_HIGH_GC_THRESHOLDS = Thresholds(EXECUTOR_TOO_HIGH_GC_RATIO_LOW, EXECUTOR_TOO_HIGH_GC_RATIO_HIGH,
                                              ascending=True)
+
+# ========== serializer metric ==========
+DEFAULT_SERIALIZER = "Java Serializer"
+PREFERRED_SERIALIZER_DEFAULT = "org.apache.spark.serializer.KryoSerializer"
+PREFERRED_SERIALIZER = config.get("serializer", "preferred_serializer", fallback=PREFERRED_SERIALIZER_DEFAULT)

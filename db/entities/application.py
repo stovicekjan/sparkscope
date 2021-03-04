@@ -7,6 +7,7 @@ from db.entities.job import JobEntity
 from db.entities.stage import StageEntity
 from db.entities.task import TaskEntity
 from history_fetcher.utils import get_prop, get_system_property
+from sparkscope_web.analyzers.app_config_analyzer import AppConfigAnalyzer
 from sparkscope_web.analyzers.executor_analyzer import ExecutorAnalyzer
 from sparkscope_web.analyzers.job_analyzer import JobAnalyzer
 from sparkscope_web.analyzers.stage_analyzer import StageAnalyzer
@@ -102,6 +103,7 @@ class ApplicationEntity(Base):
             self.compute_stage_metrics()
             self.compute_job_metrics()
             self.compute_executor_metrics()
+            self.compute_app_config_metrics()
 
             self.overall_severity = max(self.metrics_overview.values()) \
                 if len(self.metrics_overview) > 0 else Severity.NONE
@@ -143,6 +145,11 @@ class ApplicationEntity(Base):
                        self.executor_gc_time_metric]:
             if metric.severity > Severity.NONE:
                 self.metrics_overview[metric] = metric.severity
+
+    def compute_app_config_metrics(self):
+        app_config_analyzer = AppConfigAnalyzer(self)
+
+
 
     def get_basic_metrics(self):
         db = Session()
