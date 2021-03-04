@@ -6,6 +6,7 @@ class MetricDetailsList:
         """
         self._details_list = []
         self.ascending = ascending
+        self.readable_list_length = 0
 
     def add(self, details):
         """
@@ -23,19 +24,22 @@ class MetricDetailsList:
         """
         return len(self._details_list)
 
-    def get_short_list(self, length=-1):
+    def set_readable_list_length(self, length):
+        self.readable_list_length = length
+
+    def get_readable_list(self):
         """
         Get a specified number of most important MetricDetails, sorted by severity
         :param length: Number of items that should be retrieved, -1 for all of them
         :return: list of most important MetricDetails or None
         """
         sorted_list = sorted(self._details_list, key=lambda md: md.sort_attr, reverse=self.ascending)
-        if length == -1 or length >= len(sorted_list):
+        if self.readable_list_length == -1 or self.readable_list_length >= len(sorted_list):
             return sorted_list
-        elif length < len(sorted_list):
-            return sorted_list[0:length]
+        elif self.readable_list_length < len(sorted_list):
+            return sorted_list[0:self.readable_list_length]
         else:
-            ValueError(f"Invalid MetricDetailsList length: {length}.")
+            ValueError(f"Invalid MetricDetailsList length: {self.readable_list_length}.")
 
 
 class MetricDetails:

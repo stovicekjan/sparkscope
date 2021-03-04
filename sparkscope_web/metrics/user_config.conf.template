@@ -1,0 +1,38 @@
+[thresholds_stage_skew]
+# Minimum runtime (in milliseconds) of the stages which should be included
+min_runtime=30000
+
+# Values of maximum/median task runtime ratio, used as limits for LOW or HIGH severity
+ratio_low=2.0
+ratio_high=10.0
+
+[thresholds_stage_disk_spill]
+# Values of memory_spill/total_used_memory ratio, used as limits for LOW or HIGH severity
+ratio_low=0.0
+ratio_high=0.5
+
+[thresholds_driver_gc]
+# Values of GC_time/total_time for driver, used as limits for LOW or HIGH severity if the GC time is too low
+low_ratio_low_severity=0.01
+low_ratio_high_severity=0.003
+# Values of GC_time/total_time for driver, used as limits for LOW or HIGH severity if the GC time is too high
+high_ratio_low_severity=0.1
+high_ratio_high_severity=0.2
+
+[thresholds_executor_gc]
+# Values of sum(GC_time)/sum(total_time) for executors, used as limits for LOW or HIGH severity if the GC time is too low
+low_ratio_low_severity=0.01
+low_ratio_high_severity=0.003
+# Values of sum(GC_time)/sum(total_time) for executors, used as limits for LOW or HIGH severity if the GC time is too high
+high_ratio_low_severity=0.1
+high_ratio_high_severity=0.2
+
+[configs_serializer]
+# Preferred serializer to be used in Spark Applications
+preferred_serializer=org.apache.spark.serializer.KryoSerializer
+
+[readable_list_length]
+# Number of the most severe contributors to the issues to be rendered on the application page. -1 represents all.
+stage_skew_readable_list_length=5
+stage_disk_spill_readable_list_length=5
+executor_gc_readable_list_length=5
