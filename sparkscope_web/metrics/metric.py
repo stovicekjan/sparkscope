@@ -1,6 +1,6 @@
 from sparkscope_web.metrics.metrics_constants import STAGE_FAILURE_READABLE_LIST_LENGTH, \
     STAGE_SKEW_READABLE_LIST_LENGTH, STAGE_DISK_SPILL_READABLE_LIST_LENGTH, JOB_FAILURE_READABLE_LIST_LENGTH, \
-    DRIVER_GC_READABLE_LIST_LENGTH, EXECUTOR_GC_READABLE_LIST_LENGTH, SERIALIZER_CONFIG_READABLE_LIST_LENGTH
+    DRIVER_GC_READABLE_LIST_LENGTH, EXECUTOR_GC_READABLE_LIST_LENGTH
 from sparkscope_web.metrics.severity import Severity
 
 
@@ -109,5 +109,18 @@ class SerializerConfigMetric(Metric):
         been used)
         :param details: detailed info (empty dict so far)
         """
-        super().__init__(severity, overall_info, details, SERIALIZER_CONFIG_READABLE_LIST_LENGTH)
+        super().__init__(severity, overall_info, details, length=-1)
         self.title = "Serializer"
+
+
+class DynamicAllocationConfigMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create DynamicAllocationConfigMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (Dynamic allocation is either disabled or
+        misconfigured)
+        :param details: detailed info (empty dict so far)
+        """
+        super().__init__(severity, overall_info, details, length=-1)
+        self.title = "Dynamic Allocation"

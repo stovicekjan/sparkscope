@@ -92,6 +92,9 @@ DEFAULT_SERIALIZER = "Java Serializer"
 PREFERRED_SERIALIZER_DEFAULT = "org.apache.spark.serializer.KryoSerializer"
 PREFERRED_SERIALIZER = config.get("config_serializer", "preferred_serializer", fallback=PREFERRED_SERIALIZER_DEFAULT)
 
+# ========== dynamic allocation metric ==========
+IS_DYNAMIC_ALLOCATION_PREFERRED = config.getboolean("configs_dynamic_allocation", "is_dynamic_allocation_preferred",
+                                                    fallback=True)
 
 # ========== lengths of the readable metric lists ==========
 STAGE_FAILURE_READABLE_LIST_LENGTH = config.getint("readable_list_length", "stage_failure_readable_list_length",
@@ -106,4 +109,6 @@ EXECUTOR_GC_READABLE_LIST_LENGTH = config.getint("readable_list_length", "execut
                                                  fallback=-1)
 SERIALIZER_CONFIG_READABLE_LIST_LENGTH = config.getint("readable_list_length", "serializer_config_readable_list_length",
                                                        fallback=-1)
-
+DYNAMIC_ALLOCATION_CONFIG_READABLE_LIST_LENGTH = config.getint("readable_list_length",
+                                                               "dynamic_allocation_config_readable_list_length",
+                                                               fallback=-1)

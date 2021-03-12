@@ -58,12 +58,15 @@ class ApplicationEntity(Base):
 
         self.is_processed = False
 
-        self.stage_failure_metric = {}
-        self.stage_skew_metric = {}
-        self.stage_disk_spill_metric = {}
-        self.job_metrics = {}
-        self.driver_gc_time_metric = {}
-        self.executor_gc_time_metric = {}
+        self.stage_failure_metric = None
+        self.stage_skew_metric = None
+        self.stage_disk_spill_metric = None
+        self.job_metrics = None
+        self.driver_gc_time_metric = None
+        self.executor_gc_time_metric = None
+        self.executor_gc_time_metric = None
+        self.serializer_metric = None
+        self.dynamic_allocation_metric = None
 
         self.duration_formatted = fmt_time(self.duration/1000)
 
@@ -149,7 +152,14 @@ class ApplicationEntity(Base):
     def compute_app_config_metrics(self):
         app_config_analyzer = AppConfigAnalyzer(self)
 
+        self.serializer_metric = app_config_analyzer.analyze_serializer_config()
+        self.dynamic_allocation_metric = app_config_analyzer.analyze_dynamic_allocation()
 
+        for metric in [self.serializer_metric,
+                       self.dynamic_allocation_metric
+                       ]:
+            if metric.severity > Severity.NONE:
+                self.metrics_overview[metric] = metric.severity
 
     def get_basic_metrics(self):
         db = Session()

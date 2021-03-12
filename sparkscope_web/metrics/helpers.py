@@ -96,3 +96,30 @@ def size_in_bytes(size_str, default):
         return int(result.group(1))
     else:
         raise ValueError(f"Invalid size: {size_str}")
+
+
+def cast_to_bool(string):
+    """
+    Cast string value to boolean.
+    :param string: string
+    :return: boolean or None if string is None
+    """
+    if string is None:
+        return None
+
+    values = {"true": True,
+              "false": False,
+              "1": True,
+              "0": False,
+              "yes": True,
+              "no": False,
+              }
+    try:
+        if string.lower() in values:
+            return values[string.lower()]
+        else:
+            raise ValueError(f"Expected a string that can be converted to boolean, got {string}")
+    except AttributeError as e:
+        raise ValueError(f"Expected a string that can be converted to boolean, got {string}", e)
+
+

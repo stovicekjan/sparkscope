@@ -1,5 +1,5 @@
 class MetricDetailsList:
-    def __init__(self, ascending):
+    def __init__(self, ascending=True):
         """
         Create MetricDetailsList object
         :param ascending: False if "the larger, the more important" applies to the sorting attribute. Otherwise True.

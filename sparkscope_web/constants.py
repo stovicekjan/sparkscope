@@ -6,7 +6,10 @@ EXECUTOR_MEMORY_OVERHEAD_KEY = "spark.executor.memoryOverhead"
 
 DRIVER_MAX_RESULT_SIZE_KEY = "spark.driver.maxResultSize"
 EXECUTOR_CORES_KEY = "spark.executor.cores"
-DYNAMIC_ALLOCATION_KEY = "spark.dynamicAllocation.enabled"
 EXECUTOR_INSTANCES_KEY = "spark.executor.instances"
 
 SERIALIZER_KEY = "spark.serializer"
+
+DYNAMIC_ALLOCATION_KEY = "spark.dynamicAllocation.enabled"
+SHUFFLE_TRACKING_ENABLED_KEY = "spark.dynamicAllocation.shuffleTracking.enabled"
+SHUFFLE_SERVICE_ENABLED_KEY = "spark.shuffle.service.enabled"
