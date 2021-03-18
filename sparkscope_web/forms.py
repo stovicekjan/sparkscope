@@ -56,9 +56,9 @@ class SearchForm(AbstractForm):
         return True
 
     def apply_filters(self, query):
-        query = query.filter(ApplicationEntity.name.like(f"%{self.app_name.data}%")) \
-                     .filter(ApplicationEntity.app_id.like(f"%{self.app_id.data}%")) \
-                     .filter(ApplicationEntity.spark_user.like(f"%{self.username.data}%"))
+        query = query.filter(ApplicationEntity.name.like(f"%{self.app_name.data.strip()}%")) \
+                     .filter(ApplicationEntity.app_id.like(f"%{self.app_id.data.strip()}%")) \
+                     .filter(ApplicationEntity.spark_user.like(f"%{self.username.data.strip()}%"))
         query = query.filter(ApplicationEntity.start_time >= self.start_from.data) if self.start_from.data else query
         query = query.filter(ApplicationEntity.start_time <= self.start_to.data) if self.start_to.data else query
         query = query.filter(ApplicationEntity.end_time >= self.end_from.data) if self.end_from.data else query

@@ -43,7 +43,7 @@ class MetricDetailsList:
 
 
 class MetricDetails:
-    def __init__(self, entity_id: object, detail_string: object, sort_attr: object = 0, subdetails: object = []) -> object:
+    def __init__(self, entity_id=None, detail_string="", sort_attr=0, subdetails=[]):
         """
         Class holding details of a metric
         :param entity_id: id of an entity described by the metric (e.g. Stage or Executor)

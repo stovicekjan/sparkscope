@@ -39,6 +39,35 @@ class Thresholds:
                 return Severity.NONE
 
 
+class IntervalThresholds:
+    def __init__(self, lower_threshold_high_severity, lower_threshold_low_severity, upper_threshold_low_severity,
+                 upper_threshold_high_severity):
+        """
+        Class for storage of interval thresholds for Metric Severities. Ideally, the value of the criterion should be
+        between lower_threshold_low_severity and higher_threshold_low_severity.
+        :param lower_threshold_high_severity: lower bound threshold, Severity.HIGH
+        :param lower_threshold_low_severity: lower bound threshold, Severity.LOW
+        :param upper_threshold_low_severity: upper bound threshold, Severity.LOW
+        :param upper_threshold_high_severity: upper bound threshold, Severity.HIGH
+        """
+        self.lower_threshold_high_severity = lower_threshold_high_severity
+        self.lower_threshold_low_severity = lower_threshold_low_severity
+        self.upper_threshold_low_severity = upper_threshold_low_severity
+        self.upper_threshold_high_severity = upper_threshold_high_severity
+
+    def severity_of(self, value):
+        """
+        Get Severity for a given value, based on the thresholds
+        :param value: value of a metric
+        :return: Severity
+        """
+        if self.lower_threshold_low_severity <= value <= self.upper_threshold_low_severity:
+            return Severity.NONE
+        elif self.lower_threshold_high_severity <= value <= self.upper_threshold_high_severity:
+            return Severity.LOW
+        else:
+            return Severity.HIGH
+
 # TODO check if LOW threshold is more strict than HIGH threshold
 
 

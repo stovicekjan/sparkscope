@@ -100,7 +100,7 @@ def size_in_bytes(size_str, default):
 
 def cast_to_bool(string):
     """
-    Cast string value to boolean.
+    Cast string value to boolean or return None if the string is not convertible to int.
     :param string: string
     :return: boolean or None if string is None
     """
@@ -121,5 +121,17 @@ def cast_to_bool(string):
             raise ValueError(f"Expected a string that can be converted to boolean, got {string}")
     except AttributeError as e:
         raise ValueError(f"Expected a string that can be converted to boolean, got {string}", e)
+
+
+def cast_to_int(string):
+    """
+    Cast string value to int or return None if the string is not convertible to int.
+    :param string: string
+    :return: int or None if string is not convertable to int
+    """
+    try:
+        return int(string)
+    except (ValueError, TypeError) as e:
+        return None
 
 

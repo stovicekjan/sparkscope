@@ -116,20 +116,18 @@ class StageAnalyzer(Analyzer):
         stages_count = 0
 
         for stage in relevant_stages:
-            memory_bytes_spilled = stage.memory_bytes_spilled
-            disk_bytes_spilled = stage.disk_bytes_spilled
-            input_bytes = stage.input_bytes
-            output_bytes = stage.output_bytes
-            shuffle_read_bytes = stage.shuffle_read_bytes
-            shuffle_write_bytes = stage.shuffle_write_bytes
+            memory_bytes_spilled = stage.memory_bytes_spilled or 0
+            disk_bytes_spilled = stage.disk_bytes_spilled or 0
+            input_bytes = stage.input_bytes or 0
+            output_bytes = stage.output_bytes or 0
+            shuffle_read_bytes = stage.shuffle_read_bytes or 0
+            shuffle_write_bytes = stage.shuffle_write_bytes or 0
             stage_key = stage.stage_key
             id = stage.stage_id
 
             # also find which tasks is the most responsible for the spill
             worst_task = self.db.query(TaskEntity).filter(TaskEntity.stage_key == stage_key)\
                 .order_by(desc(TaskEntity.memory_bytes_spilled)).first()
-            memory_bytes_spilled_by_worst_task = worst_task.memory_bytes_spilled
-            disk_bytes_spilled_by_worst_task = worst_task.disk_bytes_spilled
 
             max_memory_usage = max(input_bytes, output_bytes, shuffle_read_bytes, shuffle_write_bytes)
             stage_severity = STAGE_DISK_SPILL_THRESHOLDS.severity_of(memory_bytes_spilled/max_memory_usage)
@@ -141,13 +139,21 @@ class StageAnalyzer(Analyzer):
                 severity = stage_severity
 
             if stage_severity > Severity.NONE:
-                details.add(MetricDetails(entity_id=id,
-                                          detail_string=f"Stage {id} spilled {fmt_bytes(memory_bytes_spilled)} ({fmt_bytes(disk_bytes_spilled)} on disk).",
-                                          sort_attr=memory_bytes_spilled,
-                                          subdetails=[f"Input: {fmt_bytes(input_bytes)}, output: {fmt_bytes(output_bytes)}.",
-                                                      f"Shuffle read: {fmt_bytes(shuffle_read_bytes)}, shuffle write: {fmt_bytes(shuffle_write_bytes)}.",
-                                                      f"Biggest contributor: task {worst_task.task_id}, {fmt_bytes(memory_bytes_spilled_by_worst_task)} spilled ({fmt_bytes(disk_bytes_spilled_by_worst_task)} on disk)."]
-                                          ))
+                subdetails = [
+                    f"Input: {fmt_bytes(input_bytes)}, output: {fmt_bytes(output_bytes)}.",
+                    f"Shuffle read: {fmt_bytes(shuffle_read_bytes)}, shuffle write: {fmt_bytes(shuffle_write_bytes)}."
+                ]
+                if worst_task is not None:
+                    memory_bytes_spilled_by_worst_task = worst_task.memory_bytes_spilled
+                    disk_bytes_spilled_by_worst_task = worst_task.disk_bytes_spilled
+                    subdetails.append(f"Biggest contributor: task {worst_task.task_id}, "
+                                      f"{fmt_bytes(memory_bytes_spilled_by_worst_task)} spilled "
+                                      f"({fmt_bytes(disk_bytes_spilled_by_worst_task)} on disk).")
+
+                detail_string = f"Stage {id} spilled {fmt_bytes(memory_bytes_spilled)} ({fmt_bytes(disk_bytes_spilled)} on disk)."
+
+                details.add(MetricDetails(entity_id=id, detail_string=detail_string, sort_attr=memory_bytes_spilled,
+                                          subdetails=subdetails))
 
         if details.length() == 0:
             return EmptyMetric(severity=Severity.NONE)

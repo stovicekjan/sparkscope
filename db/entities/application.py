@@ -67,6 +67,10 @@ class ApplicationEntity(Base):
         self.executor_gc_time_metric = None
         self.serializer_metric = None
         self.dynamic_allocation_metric = None
+        self.min_max_executors_metric = None
+        self.yarn_queue_metric = None
+        self.memory_config_metric = None
+        self.core_number_metric = None
 
         self.duration_formatted = fmt_time(self.duration/1000)
 
@@ -122,10 +126,11 @@ class ApplicationEntity(Base):
         self.stage_skew_metric = stage_analyzer.analyze_stage_skews()
         self.stage_disk_spill_metric = stage_analyzer.analyze_disk_spills()
 
-        for metric in [self.stage_failure_metric,
-                       self.stage_skew_metric,
-                       self.stage_disk_spill_metric
-                       ]:
+        for metric in [
+            self.stage_failure_metric,
+            self.stage_skew_metric,
+            self.stage_disk_spill_metric
+        ]:
             if metric.severity > Severity.NONE:
                 self.metrics_overview[metric] = metric.severity
 
@@ -144,8 +149,10 @@ class ApplicationEntity(Base):
         self.driver_gc_time_metric = executor_analyzer.analyze_driver_gc_time()
         self.executor_gc_time_metric = executor_analyzer.analyze_executors_gc_time()
 
-        for metric in [self.driver_gc_time_metric,
-                       self.executor_gc_time_metric]:
+        for metric in [
+            self.driver_gc_time_metric,
+            self.executor_gc_time_metric
+        ]:
             if metric.severity > Severity.NONE:
                 self.metrics_overview[metric] = metric.severity
 
@@ -154,10 +161,19 @@ class ApplicationEntity(Base):
 
         self.serializer_metric = app_config_analyzer.analyze_serializer_config()
         self.dynamic_allocation_metric = app_config_analyzer.analyze_dynamic_allocation()
+        self.min_max_executors_metric = app_config_analyzer.analyze_min_max_executors()
+        self.yarn_queue_metric = app_config_analyzer.analyze_yarn_queue()
+        self.memory_config_metric = app_config_analyzer.analyze_memory_configuration()
+        self.core_number_metric = app_config_analyzer.analyze_core_number()
 
-        for metric in [self.serializer_metric,
-                       self.dynamic_allocation_metric
-                       ]:
+        for metric in [
+            self.serializer_metric,
+            self.dynamic_allocation_metric,
+            self.min_max_executors_metric,
+            self.yarn_queue_metric,
+            self.memory_config_metric,
+            self.core_number_metric
+        ]:
             if metric.severity > Severity.NONE:
                 self.metrics_overview[metric] = metric.severity
 

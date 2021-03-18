@@ -124,3 +124,52 @@ class DynamicAllocationConfigMetric(Metric):
         """
         super().__init__(severity, overall_info, details, length=-1)
         self.title = "Dynamic Allocation"
+
+
+class DynamicAllocationMinMaxExecutorsMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create DynamicAllocationMinMaxExecutorsMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (min or max executors number is misconfigured)
+        :param details: detailed info (Which parameters are misconfigured)
+        """
+        super().__init__(severity, overall_info, details, length=-1)
+        self.title = "Min/Max Executors"
+
+
+class YarnQueueMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create YarnQueueMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (Default YARN queue is used, although it should not be)
+        :param details: detailed info (empty)
+        """
+        super().__init__(severity, overall_info, details, length=-1)
+        self.title = "YARN Queue"
+
+
+class MemoryConfigMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create MemoryConfigMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (The requested memory exceeded the recommended limit)
+        :param details: detailed info (specific attributes which exceeded the limits)
+        """
+        super().__init__(severity, overall_info, details, length=-1)
+        self.title = "Memory Config"
+
+
+class CoreNumberMetric(Metric):
+    def __init__(self, severity, overall_info, details):
+        """
+        Create CoreNumberMetric object
+        :param severity: Severity enum object
+        :param overall_info: high level info about metric result (The number of executor or driver cores is not set
+        optimally)
+        :param details: detailed info (which properties are not optimal)
+        """
+        super().__init__(severity, overall_info, details, length=-1)
+        self.title = "Number of Cores"
