@@ -32,7 +32,7 @@ class AppConfigAnalyzer(Analyzer):
         if used_serializer != PREFERRED_SERIALIZER:
             severity = Severity.HIGH
             overall_info = f"{used_serializer} was used, but {PREFERRED_SERIALIZER} could have better performance."
-            details = {}
+            details = MetricDetailsList()
             return SerializerConfigMetric(severity, overall_info, details)
         else:
             return EmptyMetric(Severity.NONE)

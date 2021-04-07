@@ -4,6 +4,8 @@
 # or   2.6 GB, instead of 2644123587 bytes
 import re
 
+import decimal
+
 
 def fmt_time(value):
     """
@@ -17,7 +19,7 @@ def fmt_time(value):
         return "N/A"
 
     if not isinstance(value, int) and not isinstance(value, float):
-        raise TypeError(f"Expected int or float in TimeDuration, got {type(value)}")
+        raise TypeError(f"Expected int or float, got {type(value)}")
 
     if 0 < value < 0.1:
         return f"{value:.3f} s"

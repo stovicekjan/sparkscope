@@ -1,15 +1,10 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, url_for
+from werkzeug.utils import redirect
 
 from db.base import Session, engine, Base
 from db.entities.application import ApplicationEntity
-from db.entities.executor import ExecutorEntity
-from db.entities.job import JobEntity
-from db.entities.stage import StageEntity
-from db.entities.stage_statistics import StageStatisticsEntity
-from db.entities.task import TaskEntity
-from sparkscope_web.analyzers.stage_analyzer import StageAnalyzer
 from sparkscope_web.config import Config
-from sparkscope_web.graphs import BarChartCreator
+from sparkscope_web.graphs import GraphCreator
 from sparkscope_web.forms import SearchForm, CompareForm, HistoryForm
 
 import requests
@@ -25,17 +20,17 @@ session = Session()
 
 @app.route('/')
 def home():
-    all_counts = [
-        {'entity': 'applications', 'count': session.query(ApplicationEntity).count()},
-        {'entity': 'executors', 'count': session.query(ExecutorEntity).count()},
-        {'entity': 'jobs', 'count': session.query(JobEntity).count()},
-        {'entity': 'stage', 'count': session.query(StageEntity).count()},
-        {'entity': 'stage_statistics', 'count': session.query(StageStatisticsEntity).count()},
-        {'entity': 'tasks', 'count': session.query(TaskEntity).count()},
-    ]
-    bcc = BarChartCreator()
-    bar_chart = bcc.create_chart(all_counts, 'entity', 'count')
-    return render_template('index.html', chart=bar_chart)
+    # all_counts = [
+    #     {'entity': 'applications', 'count': 6},
+    #     {'entity': 'executors', 'count': 5},
+    #     {'entity': 'jobs', 'count': 1},
+    #     {'entity': 'stage', 'count': 0},
+    #     {'entity': 'stage_statistics', 'count': 3},
+    #     {'entity': 'tasks', 'count': 3},
+    # ]
+    # bar_chart = GraphCreator.create_bar_chart(all_counts, 'entity', 'count')
+    # return render_template('index.html', chart=bar_chart)
+    return render_template('index.html')
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -58,8 +53,8 @@ def compare():
         basic_metrics_2 = spark_app_2.get_basic_metrics()
         basic_configs_1 = spark_app_1.get_basic_configs()
         basic_configs_2 = spark_app_2.get_basic_configs()
-        all_configs_json_1 = dict(spark_app_1.spark_properties)
-        all_configs_json_2 = dict(spark_app_2.spark_properties)
+        all_configs_json_1 = spark_app_1.get_spark_properties_as_dict()
+        all_configs_json_2 = spark_app_2.get_spark_properties_as_dict()
         return render_template('compare.html',
                                form=compare_form,
                                spark_app_1=spark_app_1,
@@ -74,12 +69,38 @@ def compare():
     return render_template('compare.html', form=compare_form)
 
 
-@app.route('/apphistory', methods=["GET", "POST"])
-def app_history():
+@app.route('/historyform', methods=["GET", "POST"])
+def history():
     history_form = HistoryForm(session=session)
     if request.method == "POST" and history_form.validate_on_submit():
-        pass
-    return render_template('app_history.html', form=history_form)
+        return redirect(url_for('app_history', app_name=history_form.app_name.data))
+    return render_template('app_history.html', form=history_form, app_name=None)
+
+
+@app.route('/apphistory/<app_name>', methods=["GET", "POST"])
+def app_history(app_name):
+    history_form = HistoryForm(session=session)
+    spark_apps = session.query(
+                               ApplicationEntity.start_time,
+                               ApplicationEntity.duration,
+                               ApplicationEntity.app_id
+                               ) \
+                        .filter(ApplicationEntity.name == app_name) \
+                        .order_by(ApplicationEntity.start_time) \
+                        .all()
+    app_data = [{
+        'start_time': app.start_time,
+        'duration': app.duration,
+        'app_id': app.app_id,
+    } for app in spark_apps]
+    plot = GraphCreator.create_line_chart(app_data)
+    if request.method == "POST":
+        if history_form.validate_on_submit():
+            return render_template('app_history.html', form=history_form, plot=plot, app_name=app_name)
+        else:
+            return None
+    if request.method == "GET":
+        return render_template('app_history.html', form=history_form, plot=plot, app_name=app_name)
 
 
 @app.route('/app/<app_id>')
@@ -88,7 +109,7 @@ def application(app_id):
     spark_app = session.query(ApplicationEntity).get(app_id)
     basic_metrics = spark_app.get_basic_metrics()
     basic_configs = spark_app.get_basic_configs()
-    all_configs_json = dict(spark_app.spark_properties)
+    all_configs_json = spark_app.get_spark_properties_as_dict()
     return render_template('application.html',
                            form=search_form,
                            app=spark_app,

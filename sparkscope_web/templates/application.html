@@ -75,51 +75,53 @@
             </nav>
             <div class="app-grid-container">
             <div class="col-1-row-1">
-                    <h3>{{ app.app_id }} ({{ app.name }})</h3>
-                    <p>Username: {{ app.spark_user }}</p>
-                    <div class="compare-start-end-container">
-                        <span class="compare-start-end">Start Time: {{ app.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
-                        <span class="compare-start-end">End Time: {{ app.end_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
-                    </div>
+                <h3>{{ app.app_id }} ({{ app.name }})</h3>
+                <a class="btn btn-primary" href="{{ url_for('app_history', app_name=app.name)}}">See App History</a>
+                <a class="btn btn-primary" href="{{ config.HISTORY_SERVER_BASE_URL + '/history/' + app.app_id }}"  target="_blank">See on History Server</a>
+                <p>Username: {{ app.spark_user }}</p>
+                <div class="compare-start-end-container">
+                    <span class="compare-start-end">Start Time: {{ app.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
+                    <span class="compare-start-end">End Time: {{ app.end_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
                 </div>
-                <div class="col-1-row-2">
-                    <h4>Basic Metrics</h4>
-                    <div class="card-container">
-                        {% for metric_name, metric_value in basic_metrics.items() %}
-                        <div class="card card-body ">
-                            <div class="basic-metric-name">{{ metric_name }}</div>
-                            <div class="basic-metric-value">{{ metric_value }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="col-1-row-3">
-                    <h4>Issues</h4>
-                    {% for metric, severity in app.metrics_overview.items() %}
-                    <div class="issue-container">
-                        <div class="metrics-indicator" style="background-color: {{ metric.severity.color() }}">
-                            {{ metric.title }}
-                        </div>
-                        <div class="metrics-description">
-                            <p>{{ metric.overall_info }}</p>
-                            <ul>
-                                {% for d in metric.details.get_readable_list() %}
-                                <li>
-                                    <p>{{ d.detail_string }}</p>
-                                    <ul>
-                                        {% for sd in d.subdetails %}
-                                        <li>{{ sd }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                                {% endfor %}
-                            </ul>
-
-                        </div>
+            </div>
+            <div class="col-1-row-2">
+                <h4>Basic Metrics</h4>
+                <div class="card-container">
+                    {% for metric_name, metric_value in basic_metrics.items() %}
+                    <div class="card card-body ">
+                        <div class="basic-metric-name">{{ metric_name }}</div>
+                        <div class="basic-metric-value">{{ metric_value }}</div>
                     </div>
                     {% endfor %}
                 </div>
-                <div class="col-1-row-4">
+            </div>
+            <div class="col-1-row-3">
+                <h4>Issues</h4>
+                {% for metric, severity in app.metrics_overview.items() %}
+                <div class="issue-container">
+                    <div class="metrics-indicator" style="background-color: {{ metric.severity.color() }}">
+                        {{ metric.title }}
+                    </div>
+                    <div class="metrics-description">
+                        <p>{{ metric.overall_info }}</p>
+                        <ul>
+                            {% for d in metric.details.get_readable_list() %}
+                            <li>
+                                <p>{{ d.detail_string }}</p>
+                                <ul>
+                                    {% for sd in d.subdetails %}
+                                    <li>{{ sd }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-1-row-4">
                 <h4>Key Configuration Items</h4>
                     <div class="card-container">
                         <div class="card card-body">

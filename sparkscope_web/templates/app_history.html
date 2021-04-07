@@ -15,16 +15,27 @@
     </div>
     <div class="main-page-wrapper">
         <div class="left-menu" id="">
-            <form method="POST" action="{{ url_for('app_history') }}">
+            <form method="POST" action="{{ url_for('history') }}">
                 {{ form.csrf_token }}
                 <div class="form-group">
-                    {{ form.app_id.label }}
-                    {{ form.app_id(class="form-control", placeholder="E.g. application_1234567890123_1234") }}
+                    {{ form.app_name.label }}
+                    {{ form.app_name(class="form-control", placeholder="E.g. my_spark_application") }}
                 </div>
                 {{ form.history_btn(class="btn btn-primary") }}
             </form>
         </div>
-        <div class="all-apps-container">
+        <div class="apps-container">
+            {% if app_name %}
+            <h3>App History: {{ app_name }}</h3>
+            <div id="duration-history-plot" class="chart">
+                <script>
+                    var graph = {{plot | safe}};
+                    Plotly.plot('duration-history-plot',graph,{});
+                </script>
+            </div>
+            {% else %}
+            <h1 class="null-message">Enter the application name.</h1>
+            {% endif%}
         </div>
     </div>
 </body>

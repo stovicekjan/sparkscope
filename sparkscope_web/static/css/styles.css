@@ -51,6 +51,7 @@ body {
     padding: 20px 0px;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .fixed-top {
@@ -213,4 +214,45 @@ body {
 
 .breadcrumb {
     background-color: transparent;
+}
+
+.chart {
+    width: 100%;
+    height: 80%;
+}
+
+.apps-container h3 {
+    padding-left: 20px;
+    padding-top: 20px;
+}
+
+.overview-row {
+    margin: 40px;
+}
+
+.overview-cell {
+    background-color: #e9ecef;
+    margin: 10px 30px;
+    padding: 20px;
+}
+
+.overview-value {
+    text-align: right;
+}
+
+.newest-app-cell {
+    background-color: #e9ecef;
+}
+
+.btn-row {
+    margin-top: 80px;
+}
+
+.btn-grp {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-distinct {
+    margin: 0px 20px;
 }

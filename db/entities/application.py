@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from sqlalchemy import Column, String, DateTime, BigInteger, Boolean, JSON, orm, func
+from sqlalchemy import Column, String, DateTime, BigInteger, Boolean, JSON, orm, func, and_
 from db.base import Base, Session
 from db.entities.executor import ExecutorEntity
 from db.entities.job import JobEntity
@@ -183,14 +183,16 @@ class ApplicationEntity(Base):
         runtime = self.duration/1000.0  # seconds
         cpu_time = cast_or_none(db.query(func.sum(StageEntity.executor_cpu_time) / 1.0e9)
                                 .filter(StageEntity.app_id == self.app_id).scalar(), float)  # seconds
+        total_tasks_time = cast_or_none(db.query(func.sum(TaskEntity.duration) / 1000.0).filter(and_(
+            TaskEntity.stage_key == StageEntity.stage_key, StageEntity.app_id == self.app_id)).scalar(), float)
 
         total_gc_time = cast_or_none(db.query(func.sum(ExecutorEntity.total_gc_time) / 1.0e3)
                                      .filter(ExecutorEntity.app_id == self.app_id).scalar(), float)  # seconds
 
-        basic_metrics["Runtime"] = fmt_time(runtime)  # seconds
+        basic_metrics["Duration"] = fmt_time(runtime)  # seconds
         basic_metrics["CPU Time"] = fmt_time(cpu_time)  # seconds
-        basic_metrics["Total Tasks Time"] = "dummy"
-        basic_metrics["Executor Peak Memory"] = "dummy"
+        basic_metrics["Total Tasks Time"] = fmt_time(total_tasks_time)
+        basic_metrics["Spark Mode"] = self.mode
         basic_metrics["Jobs Number"] = db.query(func.count(JobEntity.job_id)).filter(JobEntity.app_id == self.app_id).scalar()
         basic_metrics["Stages Number"] = db.query(func.count(StageEntity.stage_id)).filter(StageEntity.app_id == self.app_id).scalar()
         basic_metrics["Tasks Number"] = cast_or_none(db.query(func.sum(StageEntity.num_tasks)).filter(StageEntity.app_id == self.app_id).scalar(), int)
@@ -210,7 +212,16 @@ class ApplicationEntity(Base):
         :param property_name: name of the property
         :return: value of the property, or None if it's not found
         """
+        if self.spark_properties is None:
+            return None
+
         for prop in self.spark_properties:
             if property_name == prop[0]:
                 return prop[1]
         return None
+
+    def get_spark_properties_as_dict(self):
+        if self.spark_properties is None:
+            return dict()
+        else:
+            return dict(self.spark_properties)

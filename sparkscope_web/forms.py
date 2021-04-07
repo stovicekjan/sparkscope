@@ -17,11 +17,19 @@ class AbstractForm(FlaskForm):
         return False
 
     def all_exist(self, entity, inputs):
-        invalid_inputs = [i for i in inputs if self.session.query(entity).filter_by(app_id=i.data).first() is None]
+        invalid_inputs = []
+
+        for i in inputs:
+            if len(i) != 1:  # this should have length of 1, otherwise the app can behave incorrectly
+                raise ValueError(f"Invalid format of input validation dict. Its length should be 1, got {i}")
+
+            filter = {k: v.data for k, v in i.items()}
+            if self.session.query(entity).filter_by(**filter).first() is None:
+                invalid_inputs.append(list(i.values())[0])
         cnt = 0
         for ii in invalid_inputs:
             cnt += 1
-            ii.errors.append(f"'{ii.data}': No such ID found.")
+            ii.errors.append(f"'{ii.data}': No such record found.")
             if cnt == len(invalid_inputs):
                 return False
         return True
@@ -65,6 +73,7 @@ class SearchForm(AbstractForm):
         query = query.filter(ApplicationEntity.end_time <= self.end_to.data) if self.end_to.data else query
         return query
 
+
 class CompareForm(AbstractForm):
     app_id_1 = StringField("Application ID 1", validators=[DataRequired()])
     app_id_2 = StringField("Application ID 2", validators=[DataRequired()])
@@ -72,19 +81,23 @@ class CompareForm(AbstractForm):
 
     def validate(self):
         rv = FlaskForm.validate(self)
+        check_attr = [{'app_id': self.app_id_1},
+                      {'app_id': self.app_id_2}]
         if not rv \
                 or self.is_identical(self.app_id_1, self.app_id_2) \
-                or not self.all_exist(ApplicationEntity, [self.app_id_1, self.app_id_2]):
+                or not self.all_exist(ApplicationEntity, check_attr):
             return False
         return True
 
 
 class HistoryForm(AbstractForm):
-    app_id = StringField("Application ID", validators=[DataRequired()])
+    app_name = StringField("Application Name", validators=[DataRequired()])
     history_btn = SubmitField("See History")
 
     def validate(self):
         rv = FlaskForm.validate(self)
-        if not rv or not self.all_exist(ApplicationEntity, [self.app_id]):
+        check_attr = [{'name': self.app_name}]
+        if not rv or not self.all_exist(ApplicationEntity, check_attr):
             return False
         return True
+

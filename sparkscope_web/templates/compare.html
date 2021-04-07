@@ -29,9 +29,11 @@
             </form>
         </div>
         <div class="compare-grid-container">
-            {% if form.app_id_1.data and form.app_id_2.data %}
+            {% if form.app_id_1.data and form.app_id_2.data and form.validate_on_submit() %}
                 <div class="col-1-row-1">
                     <h3>{{ spark_app_1.app_id }} ({{ spark_app_1.name }})</h3>
+                    <a class="btn btn-primary" href="{{ url_for('app_history', app_name=spark_app_1.name)}}">See App History</a>
+                    <a class="btn btn-primary" href="{{ config.HISTORY_SERVER_BASE_URL + '/history/' + spark_app_1.app_id }}"  target="_blank">See on History Server</a>
                     <p>Username: {{ spark_app_1.spark_user }}</p>
                     <div class="compare-start-end-container">
                         <span class="compare-start-end">Start Time: {{ spark_app_1.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
@@ -104,6 +106,8 @@
 
                 <div class="col-2-row-1">
                     <h3>{{ spark_app_2.app_id }} ({{ spark_app_2.name }})</h3>
+                    <a class="btn btn-primary" href="{{ url_for('app_history', app_name=spark_app_2.name)}}">See App History</a>
+                    <a class="btn btn-primary" href="{{ config.HISTORY_SERVER_BASE_URL + '/history/' + spark_app_2.app_id }}"  target="_blank">See on History Server</a>
                     <p>Username: {{ spark_app_2.spark_user }}</p>
                     <div class="compare-start-end-container">
                         <span class="compare-start-end">Start Time: {{ spark_app_2.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
