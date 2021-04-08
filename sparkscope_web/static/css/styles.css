@@ -236,6 +236,10 @@ body {
     padding: 20px;
 }
 
+.wide-cell {
+    width: 30%;
+}
+
 .overview-value {
     text-align: right;
 }

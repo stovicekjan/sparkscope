@@ -1,8 +1,13 @@
 from flask import Flask, render_template, jsonify, request, url_for
+from sqlalchemy import func
 from werkzeug.utils import redirect
 
 from db.base import Session, engine, Base
 from db.entities.application import ApplicationEntity
+from db.entities.executor import ExecutorEntity
+from db.entities.job import JobEntity
+from db.entities.stage import StageEntity
+from db.entities.task import TaskEntity
 from sparkscope_web.config import Config
 from sparkscope_web.graphs import GraphCreator
 from sparkscope_web.forms import SearchForm, CompareForm, HistoryForm
@@ -20,17 +25,15 @@ session = Session()
 
 @app.route('/')
 def home():
-    # all_counts = [
-    #     {'entity': 'applications', 'count': 6},
-    #     {'entity': 'executors', 'count': 5},
-    #     {'entity': 'jobs', 'count': 1},
-    #     {'entity': 'stage', 'count': 0},
-    #     {'entity': 'stage_statistics', 'count': 3},
-    #     {'entity': 'tasks', 'count': 3},
-    # ]
-    # bar_chart = GraphCreator.create_bar_chart(all_counts, 'entity', 'count')
-    # return render_template('index.html', chart=bar_chart)
-    return render_template('index.html')
+    counts = {
+        'applications': session.query(func.count(ApplicationEntity.app_id)).scalar(),
+        'executors': session.query(func.count(ExecutorEntity.app_id)).scalar(),
+        'jobs': session.query(func.count(JobEntity.app_id)).scalar(),
+        'stages': session.query(func.count(StageEntity.app_id)).scalar(),
+        'tasks': session.query(func.sum(StageEntity.num_complete_tasks)).scalar(),
+    }
+    newest_date = session.query(func.max(ApplicationEntity.end_time)).scalar().strftime("%Y-%m-%d %X")
+    return render_template('index.html', counts=counts, newest_date=newest_date)
 
 
 @app.route('/search', methods=['GET', 'POST'])
