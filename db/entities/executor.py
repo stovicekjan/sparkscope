@@ -44,7 +44,7 @@ class ExecutorEntity(Base):
     used_off_heap_storage_memory = Column(String)
     total_on_heap_storage_memory = Column(String)
     total_off_heap_storage_memory = Column(String)
-    blacklisted_in_stages = Column(String)  # TODO implement this as a relationship to stage?
+    blacklisted_in_stages = Column(String)
 
     def __init__(self, attributes):
         """

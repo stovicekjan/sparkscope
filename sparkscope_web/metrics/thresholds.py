@@ -68,6 +68,4 @@ class IntervalThresholds:
         else:
             return Severity.HIGH
 
-# TODO check if LOW threshold is more strict than HIGH threshold
-
 

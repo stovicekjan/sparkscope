@@ -98,10 +98,7 @@ class ApplicationEntity(Base):
     @orm.reconstructor
     def compute_all_metrics(self):
 
-        # TODO check if this was calculated before --> does not work
-        # TODO plus calculate all when launching the server?? --> will not work either
-        # TODO estimate how much memory will be needed
-        # TODO last access attribute, set some LRU algorithm for releasing the memory if it's filled
+        # TODO find a way how to avoid recalculating the metrics every time the ApplicationEntity is accessed
         # TODO maybe Dogpile Cache can help
 
         if not hasattr(self, "is_processed") or not self.is_processed:

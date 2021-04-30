@@ -172,8 +172,9 @@ class DataFetcher:
             for stage in stages_per_app.result():
                 stage_attributes = StageEntity.get_fetch_dict(app_id, stage, self.stage_job_mapping)
                 app_stage_mapping[app_id].append(stage_attributes['stage_id'])
-                self.db_session.add(StageEntity(stage_attributes))
-                self.db_session.flush()
+                if stage_attributes['attempt_id'] == 0:
+                    self.db_session.add(StageEntity(stage_attributes))
+                    self.db_session.flush()
 
             stage_count += len(stages_per_app.result())
         logger.info(f"Fetched {stage_count} stages.")
@@ -208,7 +209,6 @@ class DataFetcher:
 
                 # in some rare cases, in History Server, a Stage might contain an Executor which is not in the executors
                 # endpoint. If so, add the key to the Executor table to skip it to avoid DB Integrity Violation
-                # TODO this might be done more efficiently using try-catch..? -> no need to shoot multiple queries
                 executor_key = f"{app_id}_{executor_id}"
                 if executor_key not in executors_per_app:
                     self.db_session.add(ExecutorEntity({"executor_key": executor_key, "app_id": app_id}))

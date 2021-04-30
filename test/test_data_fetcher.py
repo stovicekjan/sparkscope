@@ -75,7 +75,6 @@ def test_get_prop():
 
 
 
-# TODO run somehow else
 test_get_app_id_from_url()
 test_get_stage_key_from_url()
 test_get_app_id_from_stage_key()
