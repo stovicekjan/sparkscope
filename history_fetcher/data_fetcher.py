@@ -7,7 +7,6 @@ import threading
 import configparser
 import logging
 import os
-import time
 from sqlalchemy import func
 
 from db.entities.application import ApplicationEntity
@@ -18,7 +17,6 @@ from db.entities.stage import StageEntity
 from db.entities.stage_statistics import StageStatisticsEntity
 from db.entities.stage_executor import StageExecutorEntity
 from db.entities.task import TaskEntity
-from history_fetcher import utils
 from history_fetcher.utils import Utils
 
 # suppress InsecureRequestWarning while not verifying the certificates
