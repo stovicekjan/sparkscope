@@ -2,6 +2,7 @@ import pytest
 import time
 
 from history_fetcher.utils import Utils
+import history_fetcher.utils as utils
 
 u = Utils()
 u.base_url = "https://spark.history.server.com:18488/api/v1/applications"
@@ -67,11 +68,11 @@ def test_get_prop():
         }
     }
 
-    assert u.get_prop(obj1, "prop1") == "val1"
-    assert u.get_prop(obj1, "prop3") is None
-    assert u.get_prop(obj1, 'prop2', 'sub1') == 'val3'
-    assert u.get_prop(obj1, 'prop2', 'sub3') is None
-    assert u.get_prop(obj1, 'prop2', 'sub2', 'subsub2') is 'val6'
+    assert utils.get_prop(obj1, "prop1") == "val1"
+    assert utils.get_prop(obj1, "prop3") is None
+    assert utils.get_prop(obj1, 'prop2', 'sub1') == 'val3'
+    assert utils.get_prop(obj1, 'prop2', 'sub3') is None
+    assert utils.get_prop(obj1, 'prop2', 'sub2', 'subsub2') is 'val6'
 
 
 
