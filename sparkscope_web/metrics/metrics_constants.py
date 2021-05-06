@@ -177,25 +177,25 @@ DRIVER_CORES_LOW_LIMIT_HIGH_SEVERITY_DEFAULT = 2
 DRIVER_CORES_HIGH_LIMIT_LOW_SEVERITY_DEFAULT = 5
 DRIVER_CORES_HIGH_LIMIT_HIGH_SEVERITY_DEFAULT = 6
 
-EXECUTOR_CORES_LOW_LIMIT_LOW_SEVERITY = config.getint("config_cores", "executor_low_limit_low_severity",
+EXECUTOR_CORES_LOW_LIMIT_LOW_SEVERITY = config.getint("configs_cores", "executor_low_limit_low_severity",
                                                       fallback=EXECUTOR_CORES_LOW_LIMIT_LOW_SEVERITY_DEFAULT)
-EXECUTOR_CORES_LOW_LIMIT_HIGH_SEVERITY = config.getint("config_cores", "executor_low_limit_high_severity",
+EXECUTOR_CORES_LOW_LIMIT_HIGH_SEVERITY = config.getint("configs_cores", "executor_low_limit_high_severity",
                                                        fallback=EXECUTOR_CORES_LOW_LIMIT_HIGH_SEVERITY_DEFAULT)
-EXECUTOR_CORES_HIGH_LIMIT_LOW_SEVERITY = config.getint("config_cores", "executor_high_limit_low_severity",
+EXECUTOR_CORES_HIGH_LIMIT_LOW_SEVERITY = config.getint("configs_cores", "executor_high_limit_low_severity",
                                                        fallback=EXECUTOR_CORES_HIGH_LIMIT_LOW_SEVERITY_DEFAULT)
-EXECUTOR_CORES_HIGH_LIMIT_HIGH_SEVERITY = config.getint("config_cores", "executor_high_limit_high_severity",
+EXECUTOR_CORES_HIGH_LIMIT_HIGH_SEVERITY = config.getint("configs_cores", "executor_high_limit_high_severity",
                                                         fallback=EXECUTOR_CORES_HIGH_LIMIT_HIGH_SEVERITY_DEFAULT)
 EXECUTOR_CORES_THRESHOLDS = IntervalThresholds(EXECUTOR_CORES_LOW_LIMIT_HIGH_SEVERITY,
                                                EXECUTOR_CORES_LOW_LIMIT_LOW_SEVERITY,
                                                EXECUTOR_CORES_HIGH_LIMIT_LOW_SEVERITY,
                                                EXECUTOR_CORES_HIGH_LIMIT_HIGH_SEVERITY)
-DRIVER_CORES_LOW_LIMIT_LOW_SEVERITY = config.getint("config_cores", "driver_low_limit_low_severity",
+DRIVER_CORES_LOW_LIMIT_LOW_SEVERITY = config.getint("configs_cores", "driver_low_limit_low_severity",
                                                     fallback=DRIVER_CORES_LOW_LIMIT_LOW_SEVERITY_DEFAULT)
-DRIVER_CORES_LOW_LIMIT_HIGH_SEVERITY = config.getint("config_cores", "driver_low_limit_high_severity",
+DRIVER_CORES_LOW_LIMIT_HIGH_SEVERITY = config.getint("configs_cores", "driver_low_limit_high_severity",
                                                      fallback=DRIVER_CORES_LOW_LIMIT_HIGH_SEVERITY_DEFAULT)
-DRIVER_CORES_HIGH_LIMIT_LOW_SEVERITY = config.getint("config_cores", "driver_high_limit_low_severity",
+DRIVER_CORES_HIGH_LIMIT_LOW_SEVERITY = config.getint("configs_cores", "driver_high_limit_low_severity",
                                                      fallback=DRIVER_CORES_HIGH_LIMIT_LOW_SEVERITY_DEFAULT)
-DRIVER_CORES_HIGH_LIMIT_HIGH_SEVERITY = config.getint("config_cores", "driver_high_limit_high_severity",
+DRIVER_CORES_HIGH_LIMIT_HIGH_SEVERITY = config.getint("configs_cores", "driver_high_limit_high_severity",
                                                       fallback=DRIVER_CORES_HIGH_LIMIT_HIGH_SEVERITY_DEFAULT)
 DRIVER_CORES_THRESHOLDS = IntervalThresholds(DRIVER_CORES_LOW_LIMIT_HIGH_SEVERITY, DRIVER_CORES_LOW_LIMIT_LOW_SEVERITY,
                                              DRIVER_CORES_HIGH_LIMIT_LOW_SEVERITY, DRIVER_CORES_HIGH_LIMIT_HIGH_SEVERITY)
