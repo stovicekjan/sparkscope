@@ -17,6 +17,9 @@ class Analyzer:
     Generic Analyzer Class
     """
     def __init__(self):
+        """
+        Create the Analyzer object
+        """
         self.db = Session()
 
         # TODO there must be a better way of reading the config file path!

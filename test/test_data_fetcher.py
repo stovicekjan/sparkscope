@@ -1,6 +1,3 @@
-import pytest
-import time
-
 from history_fetcher.utils import Utils
 import history_fetcher.utils as utils
 

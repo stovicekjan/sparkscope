@@ -22,11 +22,22 @@ from sparkscope_web.metrics.severity import Severity
 
 
 class AppConfigAnalyzer(Analyzer):
+    """
+    Class for analyzing the Spark application configuration.
+    """
     def __init__(self, app):
+        """
+        Create the AppConfigAnalyzer object
+        :param app: Application object
+        """
         super().__init__()
         self.app = app
 
     def analyze_serializer_config(self):
+        """
+        Analyze configuration of the Serializer.
+        :return: SerializerConfigMetric if an issue with serialization is found. Otherwise, EmptyMetric is returned.
+        """
         used_serializer = self.app.get_spark_property(SERIALIZER_KEY) or DEFAULT_SERIALIZER
 
         if used_serializer != PREFERRED_SERIALIZER:

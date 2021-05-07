@@ -7,6 +7,10 @@ class Severity(Enum):
     HIGH = 2
 
     def color(self):
+        """
+        Get color for the particular severity.
+        :return:
+        """
         if self == Severity.NONE:
             color = "#009220"  # green
         elif self == Severity.LOW:
@@ -14,7 +18,6 @@ class Severity(Enum):
         else:
             color = "#ff7575"  # red
         return color
-
 
     """
     Overload comparison operators, so that Severities are directly comparable

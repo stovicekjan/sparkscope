@@ -83,7 +83,13 @@ class StageStatisticsEntity(Base):
         self.shuffle_write_time = get_prop(attributes, "shuffle_write_time")
 
     @staticmethod
-    def get_fetch_dict(stage_key, stage_statistics):
+    def get_attributes(stage_key, stage_statistics):
+        """
+        Get stage_statistics entity attributes as a key-value dict
+        :param stage_key: stage key (string)
+        :param stage_statistics: stage_statistics data (json)
+        :return: dict (attribute: value)
+        """
         return {
             'stage_key': stage_key,
             'quantiles': stage_statistics["quantiles"],

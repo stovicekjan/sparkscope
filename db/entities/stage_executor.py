@@ -63,7 +63,15 @@ class StageExecutorEntity(Base):
         self.is_blacklisted_for_stage = get_prop(attributes, "is_blacklisted_for_stage")
 
     @staticmethod
-    def get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict):
+    def get_attributes(stage_key, executor_id, app_id, stage_executor_dict):
+        """
+        Get stage_executor entity attributes as a key-value dict
+        :param stage_key: stage key (string)
+        :param executor_id: executor id (string)
+        :param app_id: executor id (string)
+        :param stage_executor_dict: stage_executor data (json)
+        :return: dict (attribute: value)
+        """
         return {
             'stage_executor_key': f"{stage_key}_{executor_id}",
             'stage_key': stage_key,

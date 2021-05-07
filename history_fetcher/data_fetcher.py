@@ -42,7 +42,7 @@ class DataFetcher:
         """
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
-        self.base_url = self.config['history_fetcher']['base_url']
+        self.base_url = self.configos.path.join(os.path.dirname(__file__), 'user_config.conf')
         self.verify_certificates = self.config.getboolean('security', 'verify_certificates')
 
         self.db_session = db_session
@@ -98,7 +98,7 @@ class DataFetcher:
         for app in app_data:
             app_ids.append(app['id'])
             app_env_data = env_data[app['id']].result()
-            app_attributes = ApplicationEntity.get_fetch_dict(app, app_env_data)
+            app_attributes = ApplicationEntity.get_attributes(app, app_env_data)
             self.db_session.add(ApplicationEntity(app_attributes))
             self.db_session.flush()
         logger.info(f"Fetched {len(app_data)} applications.")
@@ -119,7 +119,7 @@ class DataFetcher:
                 continue
 
             for executor in executors_per_app.result():
-                executor_attributes = ExecutorEntity.get_fetch_dict(app_id, executor)
+                executor_attributes = ExecutorEntity.get_attributes(app_id, executor)
                 self.db_session.add(ExecutorEntity(executor_attributes))
                 self.db_session.flush()
 
@@ -141,7 +141,7 @@ class DataFetcher:
                 continue
 
             for job in jobs_per_app.result():
-                job_attributes = JobEntity.get_fetch_dict(app_id, job)
+                job_attributes = JobEntity.get_attributes(app_id, job)
                 self.map_jobs_to_stages(job['stageIds'], job_attributes['job_key'], app_id)
                 self.db_session.add(JobEntity(job_attributes))
                 self.db_session.flush()
@@ -168,7 +168,7 @@ class DataFetcher:
             app_stage_mapping[app_id] = []
 
             for stage in stages_per_app.result():
-                stage_attributes = StageEntity.get_fetch_dict(app_id, stage, self.stage_job_mapping)
+                stage_attributes = StageEntity.get_attributes(app_id, stage, self.stage_job_mapping)
                 app_stage_mapping[app_id].append(stage_attributes['stage_id'])
                 if stage_attributes['attempt_id'] == 0:
                     self.db_session.add(StageEntity(stage_attributes))
@@ -203,7 +203,7 @@ class DataFetcher:
             executor_summary = stage_json['executorSummary']
             for executor_id, stage_executor_dict in executor_summary.items():
 
-                stage_executor_attributes = StageExecutorEntity.get_fetch_dict(stage_key, executor_id, app_id, stage_executor_dict)
+                stage_executor_attributes = StageExecutorEntity.get_attributes(stage_key, executor_id, app_id, stage_executor_dict)
 
                 # in some rare cases, in History Server, a Stage might contain an Executor which is not in the executors
                 # endpoint. If so, add the key to the Executor table to skip it to avoid DB Integrity Violation
@@ -239,7 +239,7 @@ class DataFetcher:
                 continue
 
             stage_stat_count += 1
-            stage_statistics_attributes = StageStatisticsEntity.get_fetch_dict(stage_key, stage_statistics)
+            stage_statistics_attributes = StageStatisticsEntity.get_attributes(stage_key, stage_statistics)
             self.db_session.add(StageStatisticsEntity(stage_statistics_attributes))
             self.db_session.flush()
         logger.info(f"Fetched {stage_stat_count} stage statistics records.")
@@ -266,7 +266,7 @@ class DataFetcher:
             app_id = self.utils.get_app_id_from_stage_key(stage_key)
 
             for task in tasks:
-                tasks_attributes = TaskEntity.get_fetch_dict(stage_key, task, app_id)
+                tasks_attributes = TaskEntity.get_attributes(stage_key, task, app_id)
                 self.db_session.add(TaskEntity(tasks_attributes))
                 self.db_session.flush()
 
@@ -352,6 +352,11 @@ class DataFetcher:
             self.stage_job_mapping[f"{app_id}_{stage_id}"] = job_key
 
     def get_executors_per_app(self, app_id):
+        """
+        Get list of executor keys per application.
+        :param app_id: application_id (string)
+        :return: list of executor_keys
+        """
         executors = self.db_session.query(ExecutorEntity).filter_by(app_id=app_id).all()
         return [executor.executor_key for executor in executors]
 

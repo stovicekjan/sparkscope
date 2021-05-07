@@ -80,7 +80,13 @@ class ApplicationEntity(Base):
         self.overall_severity = Severity.NONE
 
     @staticmethod
-    def get_fetch_dict(app, app_env_data):
+    def get_attributes(app, app_env_data):
+        """
+        Get application attributes as a key-value dict
+        :param app: application data (json)
+        :param app_env_data: environment data for the application (json)
+        :return: dict (attribute: value)
+        """
         return {
             'app_id': app['id'],
             'name': app['name'],
@@ -97,6 +103,9 @@ class ApplicationEntity(Base):
 
     @orm.reconstructor
     def compute_all_metrics(self):
+        """
+        Calculate all metrics per the application.
+        """
 
         # TODO find a way how to avoid recalculating the metrics every time the ApplicationEntity is accessed
         # TODO maybe Dogpile Cache can help
@@ -117,6 +126,9 @@ class ApplicationEntity(Base):
             self.duration_formatted = fmt_time(self.duration/1000)
 
     def compute_stage_metrics(self):
+        """
+        Calculate metrics related to a specific stage.
+        """
         stage_analyzer = StageAnalyzer(self)
 
         self.stage_failure_metric = stage_analyzer.analyze_failed_stages()
@@ -132,6 +144,9 @@ class ApplicationEntity(Base):
                 self.metrics_overview[metric] = metric.severity
 
     def compute_job_metrics(self):
+        """
+        Calculate metrics related to a specific job.
+        """
         job_analyzer = JobAnalyzer(self)
 
         self.job_metrics = job_analyzer.analyze_failed_jobs()
@@ -141,6 +156,9 @@ class ApplicationEntity(Base):
                 self.metrics_overview[metric] = metric.severity
 
     def compute_executor_metrics(self):
+        """
+        Calculate metrics related to a specific executor.
+        """
         executor_analyzer = ExecutorAnalyzer(self)
 
         self.driver_gc_time_metric = executor_analyzer.analyze_driver_gc_time()
@@ -154,6 +172,9 @@ class ApplicationEntity(Base):
                 self.metrics_overview[metric] = metric.severity
 
     def compute_app_config_metrics(self):
+        """
+        Calculate metrics related to the application configuration.
+        """
         app_config_analyzer = AppConfigAnalyzer(self)
 
         self.serializer_metric = app_config_analyzer.analyze_serializer_config()
@@ -175,6 +196,10 @@ class ApplicationEntity(Base):
                 self.metrics_overview[metric] = metric.severity
 
     def get_basic_metrics(self):
+        """
+        Get a set of basic metrics related to the Spark application.
+        :return: dict (metric_name: value)
+        """
         db = Session()
         basic_metrics = {}
         runtime = self.duration/1000.0  # seconds
@@ -198,6 +223,10 @@ class ApplicationEntity(Base):
         return basic_metrics
 
     def get_basic_configs(self):
+        """
+        Get set of the most important Spark config properties and their values for the Spark application
+        :return: dict ("memory": {property: value}, "other": {property: value})
+        """
         mem_props = [DRIVER_MEMORY_KEY, DRIVER_MEMORY_OVERHEAD_KEY, EXECUTOR_MEMORY_KEY, EXECUTOR_MEMORY_OVERHEAD_KEY]
         other_props = [DRIVER_MAX_RESULT_SIZE_KEY, EXECUTOR_INSTANCES_KEY, EXECUTOR_CORES_KEY, DYNAMIC_ALLOCATION_KEY]
         return {"memory": {prop: self.get_spark_property(prop) for prop in mem_props},
@@ -218,6 +247,10 @@ class ApplicationEntity(Base):
         return None
 
     def get_spark_properties_as_dict(self):
+        """
+        Convert Spark properties string from history server data to dict
+        :return: dict (property: value)
+        """
         if self.spark_properties is None:
             return dict()
         else:

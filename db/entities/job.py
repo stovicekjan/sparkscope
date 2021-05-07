@@ -60,7 +60,13 @@ class JobEntity(Base):
         self.killed_tasks_summary = get_prop(attributes, "killed_tasks_summary")
 
     @staticmethod
-    def get_fetch_dict(app_id, job):
+    def get_attributes(app_id, job):
+        """
+        Get job attributes as a key-value dict
+        :param app_id: application id (string)
+        :param job: job data (json)
+        :return: dict (attribute: value)
+        """
         return {
             'job_key': f"{app_id}_{job['jobId']}",
             'app_id': app_id,

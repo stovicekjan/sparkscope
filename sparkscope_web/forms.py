@@ -6,17 +6,36 @@ from db.entities.application import ApplicationEntity
 
 
 class AbstractForm(FlaskForm):
+    """
+    AbstractForm class
+    """
     def __init__(self, session=None):
+        """
+        Create an AbstractForm
+        :param session:
+        """
         super(AbstractForm, self).__init__()
         self.session = session
 
     def is_identical(self, attr_1, attr_2):
+        """
+        Check if the content of the two fields is identical
+        :param attr_1: Field
+        :param attr_2: Field
+        :return: True if identical, otherwise False
+        """
         if attr_1.data == attr_2.data:
             attr_2.errors.append(f"Cannot be identical to {attr_1.label.text}.")
             return True
         return False
 
     def all_exist(self, entity, inputs):
+        """
+        Check if the values submitted to the Field can be found in the database in the respective entity
+        :param entity: entity to be checked
+        :param inputs: dictionary {attribute_name: Field}
+        :return: True if all the inputs exist in the database. False otherwise
+        """
         invalid_inputs = []
 
         for i in inputs:
@@ -36,6 +55,9 @@ class AbstractForm(FlaskForm):
 
 
 class SearchForm(AbstractForm):
+    """
+    Form associated to the Search page
+    """
     fmt = '%Y-%m-%dT%H:%M'
     app_name = StringField("Application Name", validators=[Optional(strip_whitespace=True), Regexp(regex='^[a-zA-Z0-9\-_]*$', message="Only letters, numbers, _ or - allowed.")])
     app_id = StringField("Application ID", validators=[Optional(strip_whitespace=True), Regexp(regex='^[a-zA-Z0-9\-_]*$', message="Only letters, numbers, _ or - allowed.")])
@@ -49,6 +71,10 @@ class SearchForm(AbstractForm):
     search_btn = SubmitField("Search")
 
     def validate(self):
+        """
+        Validate the SearchForm
+        :return: True if valid. False otherwise.
+        """
         rv = FlaskForm.validate(self)
         if not rv:
             return False
@@ -64,6 +90,11 @@ class SearchForm(AbstractForm):
         return True
 
     def apply_filters(self, query):
+        """
+        Filter the results of the existing query by Form criteria
+        :param query: SQLAlchemy query
+        :return: filtered query
+        """
         query = query.filter(ApplicationEntity.name.like(f"%{self.app_name.data.strip()}%")) \
                      .filter(ApplicationEntity.app_id.like(f"%{self.app_id.data.strip()}%")) \
                      .filter(ApplicationEntity.spark_user.like(f"%{self.username.data.strip()}%"))
@@ -75,11 +106,18 @@ class SearchForm(AbstractForm):
 
 
 class CompareForm(AbstractForm):
+    """
+    Form associated to the Compare page
+    """
     app_id_1 = StringField("Application ID 1", validators=[DataRequired()])
     app_id_2 = StringField("Application ID 2", validators=[DataRequired()])
     compare_btn = SubmitField("Compare")
 
     def validate(self):
+        """
+        Validate the CompareForm
+        :return: True if valid. False otherwise.
+        """
         rv = FlaskForm.validate(self)
         check_attr = [{'app_id': self.app_id_1},
                       {'app_id': self.app_id_2}]
@@ -91,10 +129,17 @@ class CompareForm(AbstractForm):
 
 
 class HistoryForm(AbstractForm):
+    """
+    Form associated to the History page
+    """
     app_name = StringField("Application Name", validators=[DataRequired()])
     history_btn = SubmitField("See History")
 
     def validate(self):
+        """
+        Validate the HistoryForm
+        :return: True if valid. False otherwise.
+        """
         rv = FlaskForm.validate(self)
         check_attr = [{'name': self.app_name}]
         if not rv or not self.all_exist(ApplicationEntity, check_attr):

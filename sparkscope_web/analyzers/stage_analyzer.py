@@ -14,7 +14,14 @@ from sparkscope_web.metrics.severity import Severity
 
 
 class StageAnalyzer(Analyzer):
+    """
+    Class for analyzing stages.
+    """
     def __init__(self, app):
+        """
+        Create the StageAnalyzer object
+        :param app: Application object
+        """
         super().__init__()
         self.stages = self.db.query(StageEntity.status,
                                     StageEntity.stage_id,
@@ -40,8 +47,9 @@ class StageAnalyzer(Analyzer):
 
     def analyze_failed_stages(self):
         """
-        Analyze the Stages of the defined apps and return the metric details
-        :return: Metric details
+        Analyze the Stages of the defined apps
+        :return: StageFailureMetric if at least one of the stages failed or was killed. Otherwise, EmptyMetric is
+        returned.
         """
         all_stages_count = len(self.stages)
         if all_stages_count == 0:
@@ -63,6 +71,10 @@ class StageAnalyzer(Analyzer):
             return EmptyMetric(severity=Severity.NONE)
 
     def analyze_stage_skews(self):
+        """
+        Analyze the Stages for stage skews
+        :return: StageSkewMetric if a stage skew is found for at least one stage. Otherwise, EmptyMetric is returned.
+        """
         # filter only relevant stages (don't bother with five-second stages, focus on the large ones)
         relevant_stages = [s for s in self.stages if s.executor_run_time > STAGE_SKEW_MIN_RUNTIME_MILLIS]
 
@@ -106,6 +118,11 @@ class StageAnalyzer(Analyzer):
             return StageSkewMetric(severity=severity, overall_info=overall_info, details=details)
 
     def analyze_disk_spills(self):
+        """
+        Analyze the Stages for disk spills
+        :return: StageDiskSpillMetric if a disk spill skew is found for at least one stage. Otherwise, EmptyMetric is
+        returned.
+        """
         # filter only relevant stages (with non-zero spill)
         relevant_stages = [s for s in self.stages if s.memory_bytes_spilled > 0]
 

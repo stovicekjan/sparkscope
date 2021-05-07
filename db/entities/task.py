@@ -101,7 +101,14 @@ class TaskEntity(Base):
         self.shuffle_records_written = get_prop(attributes, 'shuffle_records_written')
 
     @staticmethod
-    def get_fetch_dict(stage_key, task, app_id):
+    def get_attributes(stage_key, task, app_id):
+        """
+        Get task entity attributes as a key-value dict
+        :param stage_key: stage key (string)
+        :param task: task data (json)
+        :param app_id: application id (string)
+        :return: dict (attribute: value)
+        """
         return {
             'task_key': f"{stage_key}_{task['taskId']}",
             'stage_key': stage_key,

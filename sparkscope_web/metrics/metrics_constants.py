@@ -7,6 +7,14 @@ from sparkscope_web.metrics.thresholds import Thresholds, IntervalThresholds
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), 'user_config.conf'))
 
+"""
+The configuration parameter names in this file follow several patterns:
+*_DEFAULT -> default value which is used as a fallback if no value is provided in the conf file.
+*_LOW, *_LOW_DEFAULT -> threshold for low severity
+*_HIGH, *_HIGH_DEFAULT -> threshold for high severity
+
+"""
+
 
 # ========== stage skew metric configuration ==========
 # Ratio (maximum task duration)/(median task duration) within a single stage
@@ -50,6 +58,7 @@ DEFAULT_EXECUTOR_MEMORY = 1 << 30  # 1 GB expressed in bytes
 
 
 # ========== driver GC metric configuration ==========
+# GC time / total driver time ratio
 DRIVER_TOO_LOW_GC_RATIO_LOW_DEFAULT = 0.04
 DRIVER_TOO_LOW_GC_RATIO_HIGH_DEFAULT = 0.01
 DRIVER_TOO_HIGH_GC_RATIO_LOW_DEFAULT = 0.1
@@ -69,6 +78,7 @@ DRIVER_TOO_HIGH_GC_THRESHOLDS = Thresholds(DRIVER_TOO_HIGH_GC_RATIO_LOW, DRIVER_
 
 
 # ========== executor GC metric configuration ==========
+# GC time / total executor time ratio
 EXECUTOR_TOO_LOW_GC_RATIO_LOW_DEFAULT = 0.04
 EXECUTOR_TOO_LOW_GC_RATIO_HIGH_DEFAULT = 0.01
 EXECUTOR_TOO_HIGH_GC_RATIO_LOW_DEFAULT = 0.1
@@ -98,6 +108,7 @@ IS_DYNAMIC_ALLOCATION_PREFERRED = config.getboolean("configs_dynamic_allocation"
                                                     fallback=True)
 
 # ========== min/max executors metric ==========
+# minimum/maximum desired number of executors if dynamic allocation is used
 DYNAMIC_ALLOCATION_MIN_EXECUTORS_LOW_DEFAULT = 1
 DYNAMIC_ALLOCATION_MIN_EXECUTORS_HIGH_DEFAULT = 1
 DYNAMIC_ALLOCATION_MAX_EXECUTORS_LOW_DEFAULT = 1000
@@ -123,6 +134,7 @@ DYNAMIC_ALLOCATION_MAX_EXECUTORS_THRESHOLDS = Thresholds(DYNAMIC_ALLOCATION_MAX_
 IS_DEFAULT_QUEUE_ALLOWED = config.getboolean("configs_yarn_queue", "is_default_queue_allowed", fallback=True)
 
 # ========== memory config metric ==========
+# maximum allowed driver/executor memory
 EXECUTOR_MEMORY_CONFIG_LOW_DEFAULT = 10 << 30  # 10 GB
 EXECUTOR_MEMORY_CONFIG_HIGH_DEFAULT = 16 << 30  # 16 GB
 EXECUTOR_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT = 4 << 30  # 4 GB
@@ -168,6 +180,7 @@ DRIVER_MEMORY_CONFIG_OVERHEAD_THRESHOLDS = Thresholds(DRIVER_MEMORY_OVERHEAD_CON
                                                       DRIVER_MEMORY_OVERHEAD_CONFIG_HIGH, ascending=True)
 
 # ========== core number metric ==========
+# minimum/maximum allowed number of cores per driver/executor
 EXECUTOR_CORES_LOW_LIMIT_LOW_SEVERITY_DEFAULT = 3
 EXECUTOR_CORES_LOW_LIMIT_HIGH_SEVERITY_DEFAULT = 2
 EXECUTOR_CORES_HIGH_LIMIT_LOW_SEVERITY_DEFAULT = 5

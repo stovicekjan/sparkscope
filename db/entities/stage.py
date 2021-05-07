@@ -94,7 +94,14 @@ class StageEntity(Base):
         self.killed_tasks_summary = get_prop(attributes, "killed_tasks_summary")
 
     @staticmethod
-    def get_fetch_dict(app_id, stage, stage_job_mapping):
+    def get_attributes(app_id, stage, stage_job_mapping):
+        """
+        Get stage attributes as a key-value dict
+        :param app_id: application id (string)
+        :param stage: stage data (json)
+        :param stage_job_mapping: mapping of jobs to stages as dict(stage_key: job_key)
+        :return: dict (attribute: value)
+        """
         return {
             'stage_key': f"{app_id}_{stage['stageId']}",
             'app_id': app_id,

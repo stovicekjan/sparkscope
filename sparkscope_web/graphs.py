@@ -10,15 +10,12 @@ from sparkscope_web.metrics.helpers import fmt_time
 
 class GraphCreator:
     @staticmethod
-    def create_bar_chart(json_data, x_coord_name, y_coord_name):
-        x_data = [dataset[x_coord_name] for dataset in json_data]
-        y_data = [dataset[y_coord_name] for dataset in json_data]
-        df = pd.DataFrame({'entity': x_data, 'count': y_data})
-        data = [go.Bar(x=df[x_coord_name], y=df[y_coord_name])]
-        return json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
-
-    @staticmethod
     def create_line_chart(json_data):
+        """
+        Create line chart as JSON compatible with Plotly library.
+        :param json_data: list of dicts: {'start_time': values, 'duration': values, 'app_id': values}
+        :return: chart as JSON
+        """
         x_data = [dataset['start_time'] for dataset in json_data]
         y_data = [dataset['duration']/1000 for dataset in json_data]
         app_ids = [dataset['app_id'] for dataset in json_data]

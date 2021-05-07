@@ -25,6 +25,9 @@ session = Session()
 
 @app.route('/')
 def home():
+    """
+    Home page
+    """
     counts = {
         'applications': session.query(func.count(ApplicationEntity.app_id)).scalar(),
         'executors': session.query(func.count(ExecutorEntity.app_id)).scalar(),
@@ -38,6 +41,9 @@ def home():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    """
+    Search page
+    """
     search_form = SearchForm()
     apps = session.query(ApplicationEntity).order_by(ApplicationEntity.start_time.desc())
     if request.method == "POST" and search_form.validate_on_submit():
@@ -48,6 +54,9 @@ def search():
 
 @app.route('/compare', methods=['GET', 'POST'])
 def compare():
+    """
+    Compare page
+    """
     compare_form = CompareForm(session=session)
     if request.method == "POST" and compare_form.validate_on_submit():
         spark_app_1 = session.query(ApplicationEntity).get(compare_form.app_id_1.data)
@@ -74,6 +83,9 @@ def compare():
 
 @app.route('/historyform', methods=["GET", "POST"])
 def history():
+    """
+    Empty History page (with form to be filled)
+    """
     history_form = HistoryForm(session=session)
     if request.method == "POST" and history_form.validate_on_submit():
         return redirect(url_for('app_history', app_name=history_form.app_name.data))
@@ -82,6 +94,10 @@ def history():
 
 @app.route('/apphistory/<app_name>', methods=["GET", "POST"])
 def app_history(app_name):
+    """
+    History page for a specific application
+    :param app_name: application name (string)
+    """
     history_form = HistoryForm(session=session)
     spark_apps = session.query(
                                ApplicationEntity.start_time,
@@ -108,6 +124,11 @@ def app_history(app_name):
 
 @app.route('/app/<app_id>')
 def application(app_id):
+    """
+    Application page
+    :param app_id: application id (string)
+    :return:
+    """
     search_form = SearchForm()
     spark_app = session.query(ApplicationEntity).get(app_id)
     basic_metrics = spark_app.get_basic_metrics()
@@ -122,4 +143,4 @@ def application(app_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

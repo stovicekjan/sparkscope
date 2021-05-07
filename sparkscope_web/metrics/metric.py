@@ -5,6 +5,9 @@ from sparkscope_web.metrics.severity import Severity
 
 
 class AbstractMetric:
+    """
+    Abstract class for holding the metrics.
+    """
     def __init__(self, severity):
         self.severity = severity
 

@@ -18,7 +18,14 @@ from sparkscope_web.metrics.severity import Severity
 
 
 class ExecutorAnalyzer(Analyzer):
+    """
+    Class for analyzing executors.
+    """
     def __init__(self, app):
+        """
+        Create the ExecutorAnalyzer object
+        :param app: Application object
+        """
         super().__init__()
         self.app = app
         self.executors = self.db.query(ExecutorEntity) \
@@ -54,6 +61,10 @@ class ExecutorAnalyzer(Analyzer):
         return EmptyMetric(severity=Severity.NONE)
 
     def analyze_driver_gc_time(self):
+        """
+        Analyze garbage collection time of the driver
+        :return: DriverGcTimeMetric object if an issue is found. Otherwise, EmptyMetric is returned.
+        """
         if self.driver is None or self.driver.total_duration == 0:
             return EmptyMetric(severity=Severity.NONE)
 
@@ -80,6 +91,11 @@ class ExecutorAnalyzer(Analyzer):
         return DriverGcTimeMetric(severity, overall_info, details)
 
     def analyze_executors_gc_time(self):
+        """
+        Analyze garbage collection time of the executors.
+        :return: ExecutorGcTimeMetric object if an issue is found for at leas one executor. Otherwise, EmptyMetric is
+        returned.
+        """
         if self.executors is None or len(self.executors) == 0:
             return EmptyMetric(severity=Severity.NONE)
 

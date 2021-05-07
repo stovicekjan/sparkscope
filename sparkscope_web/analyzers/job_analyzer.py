@@ -6,7 +6,14 @@ from sparkscope_web.metrics.severity import Severity
 
 
 class JobAnalyzer(Analyzer):
+    """
+    Class for analyzing jobs.
+    """
     def __init__(self, app):
+        """
+        Create the JobAnalyzer object
+        :param app: Application object
+        """
         super().__init__()
         self.app = app
         self.jobs = self.db.query(JobEntity.job_id, JobEntity.status)\
@@ -15,7 +22,7 @@ class JobAnalyzer(Analyzer):
 
     def analyze_failed_jobs(self):
         """
-        Analyze the Stages of the defined apps and return the metric details
+        Analyze the Jobs of the defined apps and return the metric details
         :param app: Application object
         :return: Metric details
         """
