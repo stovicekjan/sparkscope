@@ -42,7 +42,7 @@ class DataFetcher:
         """
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
-        self.base_url = self.configos.path.join(os.path.dirname(__file__), 'user_config.conf')
+        self.base_url = self.config['history_fetcher']['base_url']
         self.verify_certificates = self.config.getboolean('security', 'verify_certificates')
 
         self.db_session = db_session
