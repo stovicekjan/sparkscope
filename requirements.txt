@@ -1,8 +1,8 @@
-plotly
 
 # This file is used by pip to install required python packages
 # Usage: pip install -r requirements.txt
 
+plotly
 certifi==2018.1.18
 configparser==3.5.0
 decorator==4.4.2
@@ -16,7 +16,7 @@ networkx==2.5
 numpy==1.19.5
 pandas==1.1.5
 ply==3.11
-psycopg2==2.8.6
+psycopg2==2.7.7
 py==1.8.0
 pytest==4.4.1
 requests==2.18.4

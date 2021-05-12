@@ -145,32 +145,32 @@ DRIVER_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT = 1 << 30  # 1 GB
 DRIVER_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT = 2 << 30  # 2 GB
 
 EXECUTOR_MEMORY_CONFIG_LOW = size_in_bytes(config.get("configs_memory_settings", "max_executor_memory_low_severity",
-                                                      fallback=EXECUTOR_MEMORY_CONFIG_LOW_DEFAULT),
+                                                      fallback=str(EXECUTOR_MEMORY_CONFIG_LOW_DEFAULT)),
                                            default=EXECUTOR_MEMORY_CONFIG_LOW_DEFAULT)
 EXECUTOR_MEMORY_CONFIG_HIGH = size_in_bytes(config.get("configs_memory_settings", "max_executor_memory_high_severity",
-                                                       fallback=EXECUTOR_MEMORY_CONFIG_HIGH_DEFAULT),
+                                                       fallback=str(EXECUTOR_MEMORY_CONFIG_HIGH_DEFAULT)),
                                             default=EXECUTOR_MEMORY_CONFIG_HIGH_DEFAULT)
 EXECUTOR_MEMORY_OVERHEAD_CONFIG_LOW = size_in_bytes(config.get("configs_memory_settings",
                                                                "max_executor_memory_overhead_low_severity",
-                                                               fallback=EXECUTOR_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT),
+                                                               fallback=str(EXECUTOR_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT)),
                                                     default=EXECUTOR_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT)
 EXECUTOR_MEMORY_OVERHEAD_CONFIG_HIGH = size_in_bytes(config.get("configs_memory_settings",
                                                                 "max_executor_memory_overhead_high_severity",
-                                                                fallback=EXECUTOR_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT),
+                                                                fallback=str(EXECUTOR_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT)),
                                                      default=EXECUTOR_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT)
 DRIVER_MEMORY_CONFIG_LOW = size_in_bytes(config.get("configs_memory_settings", "max_driver_memory_low_severity",
-                                                    fallback=DRIVER_MEMORY_CONFIG_LOW_DEFAULT),
+                                                    fallback=str(DRIVER_MEMORY_CONFIG_LOW_DEFAULT)),
                                          default=DRIVER_MEMORY_CONFIG_LOW_DEFAULT)
 DRIVER_MEMORY_CONFIG_HIGH = size_in_bytes(config.get("configs_memory_settings", "max_driver_memory_high_severity",
-                                                     fallback=DRIVER_MEMORY_CONFIG_HIGH_DEFAULT),
+                                                     fallback=str(DRIVER_MEMORY_CONFIG_HIGH_DEFAULT)),
                                           default=DRIVER_MEMORY_CONFIG_HIGH_DEFAULT)
 DRIVER_MEMORY_OVERHEAD_CONFIG_LOW = size_in_bytes(config.get("configs_memory_settings",
                                                              "max_driver_memory_overhead_low_severity",
-                                                             fallback=DRIVER_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT),
+                                                             fallback=str(DRIVER_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT)),
                                                   default=DRIVER_MEMORY_OVERHEAD_CONFIG_LOW_DEFAULT)
 DRIVER_MEMORY_OVERHEAD_CONFIG_HIGH = size_in_bytes(config.get("configs_memory_settings",
                                                               "max_driver_memory_overhead_high_severity",
-                                                              fallback=DRIVER_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT),
+                                                              fallback=str(DRIVER_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT)),
                                                    default=DRIVER_MEMORY_OVERHEAD_CONFIG_HIGH_DEFAULT)
 EXECUTOR_MEMORY_CONFIG_THRESHOLDS = Thresholds(EXECUTOR_MEMORY_CONFIG_LOW, EXECUTOR_MEMORY_CONFIG_HIGH, ascending=True)
 EXECUTOR_MEMORY_OVERHEAD_CONFIG_THRESHOLDS = Thresholds(EXECUTOR_MEMORY_OVERHEAD_CONFIG_LOW,
