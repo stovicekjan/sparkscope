@@ -33,4 +33,3 @@ Arguments
 --test-mode| Fetch only some defined number of the newest application records, instead of fetching either all non-processed applications
 --truncate | Truncate all tables in the database before fetching the new records
 
-#### B. TBD

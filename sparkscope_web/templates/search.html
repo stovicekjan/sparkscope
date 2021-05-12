@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "head.html" %}
+<body>
+    {% with active_item='search' %}
+        {% include "navigation_bar.html" %}
+    {% endwith %}
+    <div class="error-container">
+        {% for field, errors in form.errors.items() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>{{ form[field].label }}: </strong>{{ ', '.join(errors) }}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="main-page-wrapper">
+        <div class="left-menu" id="search-menu">
+            <form method="POST" action="{{ url_for('search') }}">
+                {{ form.csrf_token }}
+                <div class="form-group">
+                    {{ form.app_name.label }}
+                    {{ form.app_name(class="form-control", placeholder="E.g. my_spark_application") }}
+                </div>
+                <div class="form-group">
+                    {{ form.app_id.label }}
+                    {{ form.app_id(class="form-control", placeholder="E.g. application_1234567890123_1234") }}
+                </div>
+                <div class="form-group">
+                    {{ form.username.label }}
+                    {{ form.username(class="form-control", placeholder="E.g. john_doe") }}
+                </div>
+                <div class="form-group">
+                    <div>{{ form.start_time.label }}</div>
+                    <div class="btn-group subform" role="group">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-today">Today</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-month">Last Month</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-any">Any</button>
+                    </div>
+                    <div class="subform">
+                        {{ form.start_from.label }}
+                        {{ form.start_from(class="form-control", id="start-from") }}
+                    </div>
+                    <div class="subform">
+                        {{ form.start_to.label(class="form-half-width") }}
+                        {{ form.start_to(class="form-control", id="start-to") }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>{{ form.end_time.label }}</div>
+                    <div class="btn-group subform" role="group">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-today">Today</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-month">Last Month</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-any">Any</button>
+                    </div>
+                    <div class="subform">
+                        {{ form.end_from.label }}
+                        {{ form.end_from(class="form-control", id="end-from") }}
+                    </div>
+                    <div class="subform">
+                        {{ form.end_to.label }}
+                        {{ form.end_to(class="form-control", id="end-to") }}
+                    </div>
+                </div>
+                {{ form.search_btn(class="btn btn-primary") }}
+            </form>
+        </div>
+        <div class="apps-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Applications</li>
+                </ol>
+            </nav>
+            {% for app in apps %}
+            <a href="{{ url_for('application', app_id=app.app_id) }}">
+            <div class="app-box" style="border-left-color: {{ app.overall_severity.color() }}">
+                <div class="app-box-app-id-col">
+                    <a href="{{ url_for('application', app_id=app.app_id) }}">{{ app.app_id }}</a>
+                </div>
+                <div class="app-box-app-name-col">{{ app.name }}</div>
+                <div class="app-box-user-col">{{ app.spark_user }}</div>
+                <div class="app-box-time-col">
+                    <p>Start: {{ app.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</p>
+                    <p>End: {{ app.end_time.strftime("%Y-%m-%d %H:%M:%S") }}</p>
+                    <p>Duration: {{ app.duration_formatted }}</p>
+                </div>
+                <div class="metrics-indicator-grp">
+                    {% for metric, severity in app.metrics_overview.items() %}
+                    <span class="metrics-indicator"
+                          title="{{ metric.overall_info}}"
+                          style="background-color: {{ metric.severity.color() }}">
+                        {{ metric.title }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

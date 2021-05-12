@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "head.html" %}
+<body>
+    {% with active_item='app_history' %}
+        {% include "navigation_bar.html" %}
+    {% endwith %}
+    <div class="error-container">
+        {% for field, errors in form.errors.items() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>{{ form[field].label }}: </strong>{{ ', '.join(errors) }}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="main-page-wrapper">
+        <div class="left-menu" id="">
+            <form method="POST" action="{{ url_for('history') }}">
+                {{ form.csrf_token }}
+                <div class="form-group">
+                    {{ form.app_name.label }}
+                    {{ form.app_name(class="form-control", placeholder="E.g. my_spark_application") }}
+                </div>
+                {{ form.history_btn(class="btn btn-primary") }}
+            </form>
+        </div>
+        <div class="apps-container">
+            {% if app_name %}
+            <h3>App History: {{ app_name }}</h3>
+            <div id="duration-history-plot" class="chart">
+                <script>
+                    var graph = {{plot | safe}};
+                    Plotly.plot('duration-history-plot',graph,{});
+                </script>
+            </div>
+            {% else %}
+            <h1 class="null-message">Enter the application name.</h1>
+            {% endif%}
+        </div>
+    </div>
+</body>
+</html>

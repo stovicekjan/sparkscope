@@ -29,20 +29,26 @@ if args.truncate:
 start = time.time()
 
 data_fetcher = DataFetcher(session, test_mode=args.test_mode)
-app_ids = data_fetcher.fetch_all_data()
 
-session.commit()
-session.close()
+try:
+    app_ids = data_fetcher.fetch_all_data()
+    session.commit()
+    end = time.time()
+    logger.info(f"""
+    ====================================================================================================================
+    Finished: Saved {len(app_ids)} applications metadata into database.
+    List of the application_id's: {app_ids}
+    Elapsed time: {(end-start):.3f} seconds
+    ====================================================================================================================
+    """)
+except Exception as ex:
+    logger.exception(f"Caught an exception: {ex}")
+    session.rollback()
+finally:
+    session.close()
 
-end = time.time()
 
-logger.info(f"""
-====================================================================================================================
-Finished: Saved {len(app_ids)} applications metadata into database.
-List of the application_id's: {app_ids}
-Elapsed time: {(end-start):.3f} seconds
-====================================================================================================================
-""")
+
 
 
 

@@ -17,7 +17,9 @@ password = config['database_connection']['password']
 hostname = config['database_connection']['hostname']
 database_name = config['database_connection']['database_name']
 
-engine = create_engine(f'postgresql://{user}:{password}@{hostname}/{database_name}')
+engine = create_engine(f'postgresql://{user}:{password}@{hostname}/{database_name}',
+                       pool_size=25,
+                       max_overflow=20)
 
 Session = sessionmaker(bind=engine)
 

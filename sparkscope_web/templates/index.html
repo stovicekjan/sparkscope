@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "head.html" %}
+<body>
+    {% with active_item='dashboard' %}
+        {% include "navigation_bar.html" %}
+    {% endwith %}
+    <div class="jumbotron">
+        <h1>Sparkscope</h1>
+        <p>A tool for quick diagnostics of Spark Applications.</p>
+    </div>
+    <div class="row overview-row">
+        <div class="col overview-cell">
+            <h6 class="overview-key">Analyzed applications</h6>
+            <h1 class="overview-value">{{ counts['applications'] }}</h1>
+        </div>
+        <div class="col overview-cell">
+            <h6 class="overview-key">Analyzed executors</h6>
+            <h1 class="overview-value">{{ counts['executors'] }}</h1>
+        </div>
+        <div class="col overview-cell">
+            <h6 class="overview-key">Analyzed jobs</h6>
+            <h1 class="overview-value">{{ counts['jobs'] }}</h1>
+        </div>
+        <div class="col overview-cell">
+            <h6 class="overview-key">Analyzed stages</h6>
+            <h1 class="overview-value">{{ counts['stages'] }}</h1>
+        </div>
+        <div class="col overview-cell">
+            <h6 class="overview-key">Analyzed tasks</h6>
+            <h1 class="overview-value">{{ counts['tasks'] }}</h1>
+        </div>
+    </div>
+    <div class="row overview-row">
+        <div class="overview-cell wide-cell">
+            <h6 class="overview-key">Newest analyzed application ended at</h6>
+            <h1 class="overview-value">{{ newest_date }}</h1>
+        </div>
+    </div>
+    <div class="row btn-row">
+        <div class="btn-grp">
+            <a role="button" class="btn btn-primary btn-lg btn-distinct" href="{{ url_for('search') }}">Search for application</a>
+            <a role="button" class="btn btn-primary btn-lg btn-distinct" href="{{ url_for('compare') }}">Compare two applications</a>
+            <a role="button" class="btn btn-primary btn-lg btn-distinct" href="{{ url_for('history') }}">See application history</a>
+        </div>
+    </div>
+</body>
+</html>

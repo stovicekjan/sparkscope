@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "head.html" %}
+<body>
+    {% with active_item='search' %}
+        {% include "navigation_bar.html" %}
+    {% endwith %}
+    <div class="error-container">
+        {% for field, errors in form.errors.items() %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>{{ form[field].label }}: </strong>{{ ', '.join(errors) }}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="main-page-wrapper">
+        <div class="left-menu" id="">
+            <form method="POST" action="{{ url_for('search') }}">
+                {{ form.csrf_token }}
+                <div class="form-group">
+                    {{ form.app_name.label }}
+                    {{ form.app_name(class="form-control", placeholder="E.g. my_spark_application") }}
+                </div>
+                <div class="form-group">
+                    {{ form.app_id.label }}
+                    {{ form.app_id(class="form-control", placeholder="E.g. application_1234567890123_1234") }}
+                </div>
+                <div class="form-group">
+                    {{ form.username.label }}
+                    {{ form.username(class="form-control", placeholder="E.g. john_doe") }}
+                </div>
+                <div class="form-group">
+                    <div>{{ form.start_time.label }}</div>
+                    <div class="btn-group subform" role="group">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-today">Today</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-month">Last Month</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-start-any">Any</button>
+                    </div>
+                    <div class="subform">
+                        {{ form.start_from.label }}
+                        {{ form.start_from(class="form-control", id="start-from") }}
+                    </div>
+                    <div class="subform">
+                        {{ form.start_to.label(class="form-half-width") }}
+                        {{ form.start_to(class="form-control", id="start-to") }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>{{ form.end_time.label }}</div>
+                    <div class="btn-group subform" role="group">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-today">Today</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-7d">Last 7 Days</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-month">Last Month</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-end-any">Any</button>
+                    </div>
+                    <div class="subform">
+                        {{ form.end_from.label }}
+                        {{ form.end_from(class="form-control", id="end-from") }}
+                    </div>
+                    <div class="subform">
+                        {{ form.end_to.label }}
+                        {{ form.end_to(class="form-control", id="end-to") }}
+                    </div>
+                </div>
+                {{ form.search_btn(class="btn btn-primary") }}
+            </form>
+        </div>
+        <div class="apps-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb col-1-row-1">
+                    <li class="breadcrumb-item" aria-current="page"><a href="{{ url_for('search') }}">Applications</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ app.app_id }}</li>
+                </ol>
+            </nav>
+            <div class="app-grid-container">
+            <div class="col-1-row-1">
+                <h3>{{ app.app_id }} ({{ app.name }})</h3>
+                <a class="btn btn-primary" href="{{ url_for('app_history', app_name=app.name)}}">See App History</a>
+                <a class="btn btn-primary" href="{{ config.HISTORY_SERVER_BASE_URL + '/history/' + app.app_id }}"  target="_blank">See on History Server</a>
+                <p>Username: {{ app.spark_user }}</p>
+                <div class="compare-start-end-container">
+                    <span class="compare-start-end">Start Time: {{ app.start_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
+                    <span class="compare-start-end">End Time: {{ app.end_time.strftime("%Y-%m-%d %H:%M:%S") }}</span>
+                </div>
+            </div>
+            <div class="col-1-row-2">
+                <h4>Basic Metrics</h4>
+                <div class="card-container">
+                    {% for metric_name, metric_value in basic_metrics.items() %}
+                    <div class="card card-body ">
+                        <div class="basic-metric-name">{{ metric_name }}</div>
+                        <div class="basic-metric-value">{{ metric_value }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-1-row-3">
+                <h4>Issues</h4>
+                {% for metric, severity in app.metrics_overview.items() %}
+                <div class="issue-container">
+                    <div class="metrics-indicator" style="background-color: {{ metric.severity.color() }}">
+                        {{ metric.title }}
+                    </div>
+                    <div class="metrics-description">
+                        <p>{{ metric.overall_info }}</p>
+                        <ul>
+                            {% for d in metric.details.get_readable_list() %}
+                            <li>
+                                <p>{{ d.detail_string }}</p>
+                                <ul>
+                                    {% for sd in d.subdetails %}
+                                    <li>{{ sd }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-1-row-4">
+                <h4>Key Configuration Items</h4>
+                    <div class="card-container">
+                        <div class="card card-body">
+                            <div class="basic-metric-name">Memory</div>
+                            {% for key, val in basic_configs['memory'].items() %}
+                            <div class="basic-metric-value">{{ key }}: {{ val }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="card card-body">
+                            <div class="basic-metric-name">Others</div>
+                            {% for key, val in basic_configs['other'].items() %}
+                            <div class="basic-metric-value">{{ key }}: {{ val }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-1-row-5">
+                    <h4>All Configuration Items (<a data-toggle="collapse" data-target=".multi-collapse" href="">Expand/Collapse</a>)</h4>
+                    <div class="collapse multi-collapse show">
+                        <div class="card card-body">
+                            {% for key, val in all_configs_json.items() %}
+                            <div>{{ key }}: {{ val }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
