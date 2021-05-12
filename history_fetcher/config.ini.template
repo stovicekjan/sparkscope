@@ -2,7 +2,6 @@
 
 # url of the Spark History Server API's main endpoint (list of the applications)
 base_url=https://history.server.address.com:18488/api/v1/applications
-url=https://history.server.address.com:18488
 
 # url of the Spark History Server
 url=https://history.server.address.com:18488

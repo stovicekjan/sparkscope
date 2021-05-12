@@ -1,7 +1,7 @@
 [database_connection]
 
 # database user with write permissions
-user=your_username
+user=sparkscope_user
 
 # the user's password
 password=your_password
