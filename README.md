@@ -1,5 +1,8 @@
 # Sparkscope
 
+* Feel free to reach the author at jan.stovicek41(at)gmail.com.
+
+
 A tool for diagnostics and support of optimization of Apache Spark applications. It should consist of two parts:
 * History Fetcher - a component for retrieving the Spark applications metadata from Spark History Server and storing them in PostgreSQL database.
 * A web application for processing and visualization of these data
